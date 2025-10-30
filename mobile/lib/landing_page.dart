@@ -79,7 +79,8 @@ class LandingPage extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed:
+                                  () {}, // TODO: IMPLEMENT BUTTON FUNCTIONALITY
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -100,7 +101,8 @@ class LandingPage extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton(
-                              onPressed: () {},
+                              onPressed:
+                                  () {}, // TODO: IMPLEMENT BUTTON FUNCTIONALITY
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
