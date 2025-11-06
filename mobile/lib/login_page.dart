@@ -42,11 +42,15 @@ class _LoginPageState extends State<LoginPage> {
             child: LayoutBuilder(
               builder: (context, c) {
                 final w = c.maxWidth;
+                final h = c.maxHeight;
                 final pad = w * 0.08;
                 final maxContent = 560.0;
+                final isSmall = h < 650;
 
-                return ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxContent),
+                return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContent, minHeight: h),
                   child: Column(
                     children: [
 
@@ -78,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
 
                             // header text
-                            SizedBox(height: 20),
+                            SizedBox(height: isSmall ? 12 : 20),
                             Text(
                               "Welcome back!",
                               style: TextStyle(
@@ -96,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: pad),
+                            SizedBox(height: isSmall ? pad / 1.5 : pad),
                           ],
                         ),
                       ),
@@ -108,11 +112,11 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: pad, vertical: pad / 1.5),
+                          padding: EdgeInsets.symmetric(horizontal: pad, vertical: isSmall ? pad / 2.5 : pad / 1.5),
                           child: Column(
                             children: [
 
-                              const SizedBox(height: 16),
+                              SizedBox(height: isSmall ? 8 : 16),
 
                               // email field
                               Column(
@@ -133,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.grey[200],
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                      contentPadding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16, horizontal: 14),
                                         border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide.none,
@@ -176,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ),
                                       filled: true,
                                       fillColor: Colors.grey[200],
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                      contentPadding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16, horizontal: 14),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide.none,
@@ -231,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
 
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: pad, vertical: pad / 1.5),
+                        padding: EdgeInsets.symmetric(horizontal: pad, vertical: isSmall ? pad / 2.5 : pad / 1.5),
                         child: Column(
                           children: [
 
@@ -301,6 +305,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
+                ),
                 );
               }
             ),

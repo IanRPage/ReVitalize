@@ -42,11 +42,15 @@ class _SignUpPageState extends State<SignUpPage> {
             child: LayoutBuilder(
               builder: (context, c) {
                 final w = c.maxWidth;
+                final h = c.maxHeight;
                 final pad = w * 0.08;
                 final maxContent = 560.0;
+                final isSmall = h < 650;
 
-                return ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxContent),
+                return SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxContent, minHeight: h),
                   child: Column(
                     children: [
 
@@ -78,7 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
 
                             // header text
-                            SizedBox(height: 20),
+                            SizedBox(height: isSmall ? 4 : 20),
                             Text(
                               "Let's get you started!",
                               style: TextStyle(
@@ -92,11 +96,11 @@ class _SignUpPageState extends State<SignUpPage> {
                               "Seems like you are new here. Let's set up your profile.",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 14,
+                                fontSize: isSmall ? 14 : 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: pad),
+                            SizedBox(height: isSmall ? pad / 2.5 : pad),
                           ],
                         ),
                       ),
@@ -108,7 +112,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: pad, vertical: pad / 1.5),
+                          padding: EdgeInsets.symmetric(horizontal: pad, vertical: isSmall ? pad / 4 : pad / 1.5),
                           child: Column(
                             children: [
 
@@ -132,7 +136,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.grey[200],
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                      contentPadding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16, horizontal: 14),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide.none,
@@ -142,7 +146,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ],
                               ),
 
-                              const SizedBox(height: 16),
+                              SizedBox(height: isSmall ? 12 : 16),
 
                               // email field
                               Column(
@@ -163,7 +167,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.grey[200],
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                      contentPadding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16, horizontal: 14),
                                         border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide.none,
@@ -173,7 +177,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ],
                               ),
 
-                              const SizedBox(height: 16),
+                              SizedBox(height: isSmall ? 12 : 16),
 
                               // password field
                               Column(
@@ -206,7 +210,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                       ),
                                       filled: true,
                                       fillColor: Colors.grey[200],
-                                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                                      contentPadding: EdgeInsets.symmetric(vertical: isSmall ? 8 : 16, horizontal: 14),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                         borderSide: BorderSide.none,
@@ -216,7 +220,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ],
                               ),
 
-                              const SizedBox(height: 24),
+                              SizedBox(height: isSmall ? 20 : 24),
 
                               // sign up button
                               SizedBox(
@@ -261,7 +265,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: pad, vertical: pad / 1.5),
+                        padding: EdgeInsets.symmetric(horizontal: pad, vertical: isSmall ? pad / 3 : pad / 1.5),
                         child: Column(
                           children: [
 
@@ -271,7 +275,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               child: OutlinedButton(
                                 onPressed: () {}, //TODO: Implement Google Login
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  padding: EdgeInsets.symmetric(vertical: isSmall ? 12 : 15),
                                   side: const BorderSide(color: Color(0xFFEDEDED), width: 2),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -295,7 +299,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: isSmall ? 8 : 16),
 
                             // continue with apple button
                             SizedBox(
@@ -303,7 +307,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               child: OutlinedButton(
                                 onPressed: () {}, //TODO: Implement Apple Login
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
+                                  padding: EdgeInsets.symmetric(vertical: isSmall ? 12 : 15),
                                   side: const BorderSide(color: Color(0xFFEDEDED), width: 2),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -331,6 +335,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ],
                   ),
+                ),
                 );
               }
             ),
@@ -340,7 +345,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
       // login button
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 48),
+        padding: EdgeInsets.only(bottom: 48),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
