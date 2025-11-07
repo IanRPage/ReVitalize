@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/signUp_page.dart';
+import 'package:mobile/login_page.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -62,13 +64,14 @@ class LandingPage extends StatelessWidget {
 
                           // subtext
                           SizedBox(
-                            width: 250,
+                            width: 270,
                             child: Text(
                               'Let us help you stay motivated and push yourself to do more.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -78,9 +81,13 @@ class LandingPage extends StatelessWidget {
                           // get started button
                           SizedBox(
                             width: double.infinity,
-                            child: ElevatedButton(
+                            child: TextButton(
                               onPressed:
-                                  () {}, // TODO: IMPLEMENT BUTTON FUNCTIONALITY
+                                  () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) => const SignUpPage()),
+                                    );
+                                  },
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -91,7 +98,7 @@ class LandingPage extends StatelessWidget {
                                 backgroundColor: const Color(0xFFFF6B6B),
                                 foregroundColor: Colors.white,
                               ),
-                              child: const Text('Get Started'),
+                              child: const Text('Get Started', style: TextStyle(fontWeight: FontWeight.w600)),
                             ),
                           ),
 
@@ -102,7 +109,11 @@ class LandingPage extends StatelessWidget {
                             width: double.infinity,
                             child: OutlinedButton(
                               onPressed:
-                                  () {}, // TODO: IMPLEMENT BUTTON FUNCTIONALITY
+                                  () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                                    );
+                                  },
                               style: OutlinedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
@@ -116,7 +127,7 @@ class LandingPage extends StatelessWidget {
                                 ),
                                 foregroundColor: Colors.black,
                               ),
-                              child: const Text('I already have an account'),
+                              child: const Text('I already have an account', style: TextStyle(fontWeight: FontWeight.w600)),
                             ),
                           ),
 
