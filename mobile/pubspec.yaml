@@ -65,6 +65,7 @@ flutter:
     - assets/
     - assets/landing/
     - assets/misc/
+    - assets/icons/
 
   fonts:
     - family: Montserrat
