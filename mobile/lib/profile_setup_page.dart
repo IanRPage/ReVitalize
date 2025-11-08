@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/signUp_page.dart';
+
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
