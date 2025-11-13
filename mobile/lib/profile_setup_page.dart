@@ -166,7 +166,14 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           ageController,
                           isSmall,
                           keyboardType: TextInputType.number,
-                          suffixIcon: 'assets/icons/calendar.png',
+                          suffixIconWidget: IconButton(
+                            onPressed: () {}, // TODO: add calendar drop down
+                            icon: const ImageIcon(
+                              AssetImage('assets/icons/calendar.png'),
+                            ),
+                            // icon: const Icon(Icons.calendar_month),
+                            color: Colors.grey,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(
@@ -174,8 +181,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           genderController,
                           isSmall,
                           readOnly: true,
-                          suffixIconWidget: const Icon(
-                            Icons.keyboard_arrow_down,
+                          suffixIconWidget: IconButton(
+                            onPressed: () {}, // TODO: add gender dropdown
+                            icon: const Icon(Icons.keyboard_arrow_down),
                             color: Colors.grey,
                           ),
                         ),
