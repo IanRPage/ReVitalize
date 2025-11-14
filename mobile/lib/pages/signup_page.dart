@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/landing_page.dart';
-import 'package:mobile/login_page.dart';
-import 'profile_setup_page.dart';
+import 'package:mobile/pages/landing_page.dart';
+import 'package:mobile/pages/login_page.dart';
+import 'package:mobile/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -11,6 +11,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  late String _usernameField;
+  late String _emailField;
+  late String _passwordField;
   bool isObscure = false;
 
   @override
@@ -123,7 +126,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                             child: Column(
                               children: [
-                                // username field
+                                // TODO: username field
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -140,6 +143,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     const SizedBox(height: 6),
 
                                     TextFormField(
+                                      onChanged: (String value) {
+                                        _usernameField = value;
+                                      },
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.grey[200],
@@ -160,7 +166,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                                 SizedBox(height: isSmall ? 12 : 16),
 
-                                // email field
+                                // TODO: email field
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -176,6 +182,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                     const SizedBox(height: 6),
 
                                     TextFormField(
+                                      onChanged: (String value) {
+                                        _emailField = value;
+                                      },
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.grey[200],
@@ -196,7 +205,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                                 SizedBox(height: isSmall ? 12 : 16),
 
-                                // password field
+                                // TODO: password field
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -212,6 +221,9 @@ class _SignUpPageState extends State<SignUpPage> {
 
                                     // eye button for password visibility
                                     TextFormField(
+                                      onChanged: (String value) {
+                                        _passwordField = value;
+                                      },
                                       obscureText: isObscure,
                                       decoration: InputDecoration(
                                         suffixIcon: IconButton(
@@ -246,18 +258,16 @@ class _SignUpPageState extends State<SignUpPage> {
 
                                 SizedBox(height: isSmall ? 20 : 24),
 
-                                // sign up button
+                                // TODO: sign up button
                                 SizedBox(
                                   width: double.infinity,
                                   height: 48,
                                   child: TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const ProfileSetupPage(),
-                                        ),
+                                    onPressed: () async {
+                                      await AuthService().signup(
+                                        email: _emailField,
+                                        password: _passwordField,
+                                        context: context,
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(

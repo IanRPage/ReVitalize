@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/landing_page.dart';
-import 'package:mobile/signup_page.dart';
+import 'package:mobile/pages/landing_page.dart';
+import 'package:mobile/pages/signup_page.dart';
+import 'package:mobile/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,6 +11,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  late String _emailField;
+  late String _passwordField;
   bool isObscure = false;
 
   @override
@@ -124,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                               children: [
                                 SizedBox(height: isSmall ? 8 : 16),
 
-                                // email field
+                                // TODO: email field
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -140,6 +143,9 @@ class _LoginPageState extends State<LoginPage> {
                                     const SizedBox(height: 6),
 
                                     TextFormField(
+                                      onChanged: (value) {
+                                        _emailField = value;
+                                      },
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: Colors.grey[200],
@@ -160,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                 const SizedBox(height: 16),
 
-                                // password field
+                                // TODO: password field
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -176,6 +182,9 @@ class _LoginPageState extends State<LoginPage> {
 
                                     // eye button for password visibility
                                     TextFormField(
+                                      onChanged: (value) {
+                                        _passwordField = value;
+                                      },
                                       obscureText: isObscure,
                                       decoration: InputDecoration(
                                         suffixIcon: IconButton(
@@ -210,12 +219,18 @@ class _LoginPageState extends State<LoginPage> {
 
                                 const SizedBox(height: 24),
 
-                                // login button
+                                // TODO: login button
                                 SizedBox(
                                   width: double.infinity,
                                   height: 48,
                                   child: TextButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      await AuthService().login(
+                                        email: _emailField,
+                                        password: _passwordField,
+                                        context: context,
+                                      );
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF5FD1E2),
                                       shape: RoundedRectangleBorder(
