@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/landing_page.dart';
 import 'package:mobile/pages/login_page.dart';
+import 'package:mobile/pages/profile_setup_page.dart';
 import 'package:mobile/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -11,15 +12,89 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  late String _usernameField;
-  late String _emailField;
-  late String _passwordField;
-  bool isObscure = false;
+  final _formKey = GlobalKey<FormState>();
+
+  // controller fields
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  final _authService = AuthService();
+
+  bool _isObscure = true;
+  bool _isSubmitting = false;
+  AuthFieldErrors _fieldErrors = AuthFieldErrors.none;
 
   @override
-  void initState() {
-    super.initState();
-    isObscure = true;
+  void dispose() {
+    // cleanup so we don't leak memory
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    setState(() {
+      _fieldErrors = AuthFieldErrors.none;
+    });
+
+    // validate form
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final username = _emailController.text.trim();
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      final result = await _authService.signup(
+        email: email,
+        password: password,
+      );
+
+      if (!result.success) {
+        setState(() => _fieldErrors = result.errors);
+
+        _formKey.currentState!.validate();
+
+        if (result.errors.general != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(result.errors.general!)));
+        }
+
+        return;
+      }
+
+      // await Future.delayed(const Duration(seconds: 1));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => const ProfileSetupPage(),
+        ),
+      );
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  InputDecoration _fieldDecoration(bool isSmall) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.grey[200],
+      contentPadding: EdgeInsets.symmetric(
+        vertical: isSmall ? 8 : 16,
+        horizontal: 14,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+    );
   }
 
   @override
@@ -124,169 +199,188 @@ class _SignUpPageState extends State<SignUpPage> {
                               horizontal: pad,
                               vertical: isSmall ? pad / 4 : pad / 1.5,
                             ),
-                            child: Column(
-                              children: [
-                                // TODO: username field
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'Username',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 6),
-
-                                    TextFormField(
-                                      onChanged: (String value) {
-                                        _usernameField = value;
-                                      },
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.grey[200],
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: isSmall ? 8 : 16,
-                                          horizontal: 14,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          borderSide: BorderSide.none,
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  // USERNAME FIELD
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'Username',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
 
-                                SizedBox(height: isSmall ? 12 : 16),
+                                      const SizedBox(height: 6),
 
-                                // TODO: email field
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
+                                      TextFormField(
+                                        controller: _usernameController,
+                                        decoration: _fieldDecoration(isSmall),
+                                        textInputAction: TextInputAction.next,
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return 'Username is required';
+                                          }
+                                          if (value.trim().length < 3) {
+                                            return 'Username must be at least 3 characters';
+                                          }
+                                          return null;
+                                        },
                                       ),
-                                    ),
+                                    ],
+                                  ),
 
-                                    const SizedBox(height: 6),
+                                  SizedBox(height: isSmall ? 12 : 16),
 
-                                    TextFormField(
-                                      onChanged: (String value) {
-                                        _emailField = value;
-                                      },
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.grey[200],
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: isSmall ? 8 : 16,
-                                          horizontal: 14,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          borderSide: BorderSide.none,
+                                  // EMAIL FIELD
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Email',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
 
-                                SizedBox(height: isSmall ? 12 : 16),
+                                      const SizedBox(height: 6),
 
-                                // TODO: password field
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Password',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-
-                                    // eye button for password visibility
-                                    TextFormField(
-                                      onChanged: (String value) {
-                                        _passwordField = value;
-                                      },
-                                      obscureText: isObscure,
-                                      decoration: InputDecoration(
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            isObscure
-                                                ? Icons.visibility_rounded
-                                                : Icons.visibility_off_rounded,
-                                            color: Colors.grey,
-                                          ),
-                                          onPressed: () {
+                                      TextFormField(
+                                        controller: _emailController,
+                                        onChanged: (_) {
+                                          if (_fieldErrors.email != null) {
                                             setState(() {
-                                              isObscure = !isObscure;
+                                              _fieldErrors = _fieldErrors
+                                                  .copyWith(email: null);
                                             });
-                                          },
+                                          }
+                                        },
+                                        decoration: _fieldDecoration(isSmall),
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        textInputAction: TextInputAction.next,
+                                        validator: (value) {
+                                          final v = value?.trim() ?? '';
+                                          if (v.isEmpty) {
+                                            return 'Email is required';
+                                          }
+                                          return _fieldErrors.email;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                  SizedBox(height: isSmall ? 12 : 16),
+
+                                  // PASSWORD FIELD
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Password',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
                                         ),
-                                        filled: true,
-                                        fillColor: Colors.grey[200],
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: isSmall ? 8 : 16,
-                                          horizontal: 14,
+                                      ),
+                                      const SizedBox(height: 6),
+
+                                      // eye button for password visibility
+                                      TextFormField(
+                                        controller: _passwordController,
+                                        onChanged: (_) {
+                                          if (_fieldErrors.password != null) {
+                                            setState(() {
+                                              _fieldErrors = _fieldErrors
+                                                  .copyWith(password: null);
+                                            });
+                                          }
+                                        },
+                                        obscureText: _isObscure,
+                                        decoration: _fieldDecoration(isSmall)
+                                            .copyWith(
+                                              suffixIcon: IconButton(
+                                                icon: Icon(
+                                                  _isObscure
+                                                      ? Icons.visibility_rounded
+                                                      : Icons
+                                                            .visibility_off_rounded,
+                                                  color: Colors.grey[700],
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _isObscure = !_isObscure;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                        textInputAction: TextInputAction.done,
+                                        onFieldSubmitted: (_) => _submit(),
+                                        validator: (value) {
+                                          final v = value ?? '';
+                                          if (v.isEmpty) {
+                                            return 'Password is required';
+                                          }
+                                          return _fieldErrors.password;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                  SizedBox(height: isSmall ? 20 : 24),
+
+                                  // SIGN UP BUTTON
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: TextButton(
+                                      onPressed: _isSubmitting ? null : _submit,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF5FD1E2,
                                         ),
-                                        border: OutlineInputBorder(
+                                        shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             10,
                                           ),
-                                          borderSide: BorderSide.none,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-
-                                SizedBox(height: isSmall ? 20 : 24),
-
-                                // TODO: sign up button
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 48,
-                                  child: TextButton(
-                                    onPressed: () async {
-                                      await AuthService().signup(
-                                        email: _emailField,
-                                        password: _passwordField,
-                                        context: context,
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF5FD1E2),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Sign Up',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      child: _isSubmitting
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.white),
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Sign Up',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -326,7 +420,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 width: double.infinity,
                                 child: OutlinedButton(
                                   onPressed:
-                                      () {}, //TODO: Implement Google Login
+                                      () {}, // TODO: Implement Google Login
                                   style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.symmetric(
                                       vertical: isSmall ? 12 : 15,
@@ -370,7 +464,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 width: double.infinity,
                                 child: OutlinedButton(
                                   onPressed:
-                                      () {}, //TODO: Implement Apple Login
+                                      () {}, // TODO: Implement Apple Login
                                   style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.symmetric(
                                       vertical: isSmall ? 12 : 15,

@@ -11,14 +11,83 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late String _emailField;
-  late String _passwordField;
-  bool isObscure = false;
+  final _formKey = GlobalKey<FormState>();
+
+  // controller fields
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  final _authService = AuthService();
+
+  bool _isObscure = true;
+  bool _isSubmitting = false;
+  AuthFieldErrors _fieldErrors = AuthFieldErrors.none;
 
   @override
-  void initState() {
-    super.initState();
-    isObscure = true;
+  void dispose() {
+    // cleanup so we don't leak memory
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    setState(() {
+      _fieldErrors = AuthFieldErrors.none;
+    });
+
+    // validate form
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      final result = await _authService.login(email: email, password: password);
+
+      if (!result.success) {
+        setState(() => _fieldErrors = result.errors);
+
+        _formKey.currentState!.validate();
+
+        if (result.errors.general != null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(result.errors.general!)));
+        }
+
+        return;
+      }
+
+      // await Future.delayed(const Duration(seconds: 1));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => const Placeholder(),
+        ),
+      );
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
+  }
+
+  InputDecoration _fieldDecoration(bool isSmall) {
+    return InputDecoration(
+      filled: true,
+      fillColor: Colors.grey[200],
+      contentPadding: EdgeInsets.symmetric(
+        vertical: isSmall ? 8 : 16,
+        horizontal: 14,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide.none,
+      ),
+    );
   }
 
   @override
@@ -123,131 +192,154 @@ class _LoginPageState extends State<LoginPage> {
                               horizontal: pad,
                               vertical: isSmall ? pad / 2.5 : pad / 1.5,
                             ),
-                            child: Column(
-                              children: [
-                                SizedBox(height: isSmall ? 8 : 16),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  SizedBox(height: isSmall ? 8 : 16),
 
-                                // TODO: email field
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Email',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 6),
-
-                                    TextFormField(
-                                      onChanged: (value) {
-                                        _emailField = value;
-                                      },
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.grey[200],
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: isSmall ? 8 : 16,
-                                          horizontal: 14,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          borderSide: BorderSide.none,
+                                  // EMAIL FIELD
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Email',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
 
-                                const SizedBox(height: 16),
+                                      const SizedBox(height: 6),
 
-                                // TODO: password field
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Password',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey[700],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-
-                                    // eye button for password visibility
-                                    TextFormField(
-                                      onChanged: (value) {
-                                        _passwordField = value;
-                                      },
-                                      obscureText: isObscure,
-                                      decoration: InputDecoration(
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            isObscure
-                                                ? Icons.visibility_rounded
-                                                : Icons.visibility_off_rounded,
-                                            color: Colors.grey,
-                                          ),
-                                          onPressed: () {
+                                      TextFormField(
+                                        controller: _emailController,
+                                        onChanged: (_) {
+                                          if (_fieldErrors.email != null) {
                                             setState(() {
-                                              isObscure = !isObscure;
+                                              _fieldErrors = _fieldErrors
+                                                  .copyWith(email: null);
                                             });
-                                          },
+                                          }
+                                        },
+                                        decoration: _fieldDecoration(isSmall),
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        textInputAction: TextInputAction.next,
+                                        validator: (value) {
+                                          final v = value?.trim() ?? '';
+                                          if (v.isEmpty) {
+                                            return 'Email is required';
+                                          }
+                                          return _fieldErrors.email;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 16),
+
+                                  // PASSWORD FIELD
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Password',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey[700],
                                         ),
-                                        filled: true,
-                                        fillColor: Colors.grey[200],
-                                        contentPadding: EdgeInsets.symmetric(
-                                          vertical: isSmall ? 8 : 16,
-                                          horizontal: 14,
+                                      ),
+                                      const SizedBox(height: 6),
+
+                                      // eye button for password visibility
+                                      TextFormField(
+                                        controller: _passwordController,
+                                        onChanged: (_) {
+                                          if (_fieldErrors.password != null) {
+                                            setState(() {
+                                              _fieldErrors = _fieldErrors
+                                                  .copyWith(password: null);
+                                            });
+                                          }
+                                        },
+                                        obscureText: _isObscure,
+                                        decoration: _fieldDecoration(isSmall)
+                                            .copyWith(
+                                              suffixIcon: IconButton(
+                                                icon: Icon(
+                                                  _isObscure
+                                                      ? Icons.visibility_rounded
+                                                      : Icons
+                                                            .visibility_off_rounded,
+                                                  color: Colors.grey[700],
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _isObscure = !_isObscure;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                        textInputAction: TextInputAction.done,
+                                        onFieldSubmitted: (_) => _submit(),
+                                        validator: (value) {
+                                          final v = value ?? '';
+                                          if (v.isEmpty) {
+                                            return 'Password is required';
+                                          }
+                                          return _fieldErrors.password;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 24),
+
+                                  // LOGIN BUTTON
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+                                    child: TextButton(
+                                      onPressed: _isSubmitting ? null : _submit,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF5FD1E2,
                                         ),
-                                        border: OutlineInputBorder(
+                                        shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             10,
                                           ),
-                                          borderSide: BorderSide.none,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 24),
-
-                                // TODO: login button
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 48,
-                                  child: TextButton(
-                                    onPressed: () async {
-                                      await AuthService().login(
-                                        email: _emailField,
-                                        password: _passwordField,
-                                        context: context,
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF5FD1E2),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      child: _isSubmitting
+                                          ? const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Colors.white),
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Login',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -287,7 +379,7 @@ class _LoginPageState extends State<LoginPage> {
                                 width: double.infinity,
                                 child: OutlinedButton(
                                   onPressed:
-                                      () {}, //TODO: Implement Google Login
+                                      () {}, // TODO: Implement Google Login
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 15,
@@ -331,7 +423,7 @@ class _LoginPageState extends State<LoginPage> {
                                 width: double.infinity,
                                 child: OutlinedButton(
                                   onPressed:
-                                      () {}, //TODO: Implement Apple Login
+                                      () {}, // TODO: Implement Apple Login
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 15,

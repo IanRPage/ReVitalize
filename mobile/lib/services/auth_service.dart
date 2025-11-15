@@ -1,66 +1,102 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:mobile/pages/profile_setup_page.dart';
+
+class AuthFieldErrors {
+  final String? email;
+  final String? password;
+  final String? general;
+
+  const AuthFieldErrors({this.email, this.password, this.general});
+
+  bool get hasErrors => email != null || password != null || general != null;
+
+  AuthFieldErrors copyWith({String? email, String? password, String? general}) {
+    return AuthFieldErrors(
+      email: email ?? this.email,
+      password: password ?? this.password,
+      general: general ?? this.general,
+    );
+  }
+
+  static const none = AuthFieldErrors();
+}
+
+class AuthResult {
+  final bool success;
+  final AuthFieldErrors errors;
+
+  // const AuthResult._(this.success, this.errors);
+
+  const AuthResult.success() : success = true, errors = AuthFieldErrors.none;
+
+  const AuthResult.failure(AuthFieldErrors errors)
+    : success = false,
+      errors = errors;
+}
 
 class AuthService {
-  Future<void> signup({
+  Future<AuthResult> signup({
     required String email,
     required String password,
-    required BuildContext context,
   }) async {
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      debugPrint("[AUTH][SUCCESS] Registration successful");
-
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const ProfileSetupPage(),
-        ),
-      );
+      return const AuthResult.success();
     } on FirebaseAuthException catch (e) {
-      String message = '';
-      if (e.code == 'weak-password') {
-        message = '[AUTH][FAIL] The password you gave is too weak';
-      } else if (e.code == 'email-already-in-use') {
-        message = '[AUTH][FAIL] That email is already in use';
-      }
-      debugPrint(message);
+      return AuthResult.failure(_mapFirebaseErrorToFieldErrors(e));
+    } catch (_) {
+      return const AuthResult.failure(
+        AuthFieldErrors(general: 'Unexpected error. Please try again'),
+      );
     }
   }
 
-  Future<void> login({
+  Future<AuthResult> login({
     required String email,
     required String password,
-    required BuildContext context,
   }) async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      debugPrint("[AUTH][SUCCESS] Login successful");
-
-      // // uncomment once HomePage is created
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const Placeholder(),
-        ),
-      );
+      return const AuthResult.success();
     } on FirebaseAuthException catch (e) {
-      String message = '';
-      if (e.code == 'user-not-found') {
-        message = '[AUTH][FAIL] No user found with that email';
-      } else if (e.code == 'wrong-password') {
-        message = '[AUTH][FAIL] Incorrect password for user with that email';
-      }
-      debugPrint(message);
+      return AuthResult.failure(_mapFirebaseErrorToFieldErrors(e));
+    } catch (e) {
+      return const AuthResult.failure(
+        AuthFieldErrors(general: 'Unexpected error. Please try again'),
+      );
+    }
+  }
+
+  // TODO: add more FirebaseAuthException code cases
+  AuthFieldErrors _mapFirebaseErrorToFieldErrors(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        return const AuthFieldErrors(
+          email: 'An account already exists for that email.',
+        );
+      case 'invalid-email':
+        return const AuthFieldErrors(email: 'That email address is not valid.');
+      case 'weak-password':
+        return const AuthFieldErrors(
+          password: 'Password is too weak (min 6 characters).',
+        );
+      case 'user-not-found':
+        return const AuthFieldErrors(email: 'No user found with that email.');
+      case 'wrong-password':
+        return const AuthFieldErrors(password: 'Incorrect password.');
+      case 'invalid-credential':
+        return const AuthFieldErrors(
+          password: 'The username or password entered is incorrect',
+        );
+      default:
+        return const AuthFieldErrors(
+          general: 'Authentication failed. Please try again.',
+        );
     }
   }
 }
