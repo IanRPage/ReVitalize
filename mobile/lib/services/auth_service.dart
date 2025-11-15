@@ -13,6 +13,7 @@ class AuthService {
         email: email,
         password: password,
       );
+      debugPrint("[AUTH][SUCCESS] Registration successful");
 
       await Future.delayed(const Duration(seconds: 1));
       Navigator.pushReplacement(
@@ -24,13 +25,11 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'weak-password') {
-        message = 'The password you gave is too weak';
+        message = '[AUTH][FAIL] The password you gave is too weak';
       } else if (e.code == 'email-already-in-use') {
-        message = 'That email is already in use';
+        message = '[AUTH][FAIL] That email is already in use';
       }
-      print(message); // TODO: figure out logging
-    } finally {
-      print('Successful registration');
+      debugPrint(message);
     }
   }
 
@@ -44,25 +43,24 @@ class AuthService {
         email: email,
         password: password,
       );
+      debugPrint("[AUTH][SUCCESS] Login successful");
 
       // // uncomment once HomePage is created
-      // await Future.delayed(const Duration(seconds: 1));
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (BuildContext context) => const HomePage(),
-      //   ),
-      // );
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => const Placeholder(),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       String message = '';
       if (e.code == 'user-not-found') {
-        message = 'No user found with that email';
+        message = '[AUTH][FAIL] No user found with that email';
       } else if (e.code == 'wrong-password') {
-        message = 'Incorrect password for user with that email';
+        message = '[AUTH][FAIL] Incorrect password for user with that email';
       }
-      print(message); // TODO: figure out logging
-    } finally {
-      print("Successful login");
+      debugPrint(message);
     }
   }
 }

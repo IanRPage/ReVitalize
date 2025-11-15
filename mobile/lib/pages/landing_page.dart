@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/pages/signup_page.dart';
 import 'package:mobile/pages/login_page.dart';
-import 'package:mobile/services/auth_service.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
