@@ -57,6 +57,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '246368661099',
     projectId: 'revitalize-19a25',
     storageBucket: 'revitalize-19a25.firebasestorage.app',
+    iosClientId: '246368661099-vbk5cg5npqhgqbcfqomdknc8i1gbo9cn.apps.googleusercontent.com',
     iosBundleId: 'com.example.mobile',
   );
+
 }
