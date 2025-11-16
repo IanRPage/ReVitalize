@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/dashboard.dart';
 import 'package:mobile/pages/landing_page.dart';
 import 'package:mobile/pages/signup_page.dart';
 import 'package:mobile/services/auth_service.dart';
@@ -66,9 +67,7 @@ class _LoginPageState extends State<LoginPage> {
       // await Future.delayed(const Duration(seconds: 1));
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const Placeholder(),
-        ),
+        MaterialPageRoute(builder: (BuildContext context) => const Dashboard()),
       );
     } finally {
       setState(() => _isSubmitting = false);

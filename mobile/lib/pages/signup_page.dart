@@ -47,7 +47,8 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() => _isSubmitting = true);
 
     try {
-      final username = _emailController.text.trim();
+      final username = _usernameController.text
+          .trim(); // TODO: deal with username controller
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
