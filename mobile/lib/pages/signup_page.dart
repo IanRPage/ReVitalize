@@ -420,8 +420,35 @@ class _SignUpPageState extends State<SignUpPage> {
                               SizedBox(
                                 width: double.infinity,
                                 child: OutlinedButton(
-                                  onPressed:
-                                      () {}, // TODO: Implement Google Login
+                                  onPressed: () async {
+                                    setState(() => _isSubmitting = true);
+                                    try {
+                                      final result = await _authService
+                                          .signUpWithGoogle();
+                                      if (result.success) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                const ProfileSetupPage(),
+                                          ),
+                                        );
+                                      } else if (result.errors.general !=
+                                          null) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              result.errors.general!,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } finally {
+                                      setState(() => _isSubmitting = false);
+                                    }
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.symmetric(
                                       vertical: isSmall ? 12 : 15,

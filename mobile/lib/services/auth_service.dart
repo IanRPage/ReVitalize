@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/services.dart';
 
 class AuthFieldErrors {
   final String? email;
@@ -97,6 +99,47 @@ class AuthService {
         return const AuthFieldErrors(
           general: 'Authentication failed. Please try again.',
         );
+    }
+  }
+
+  Future<AuthResult> signUpWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(
+        scopes: const ['email'],
+      ).signIn();
+
+      if (googleUser == null) {
+        return const AuthResult.failure(
+          AuthFieldErrors(general: 'Google sign-in was cancelled'),
+        );
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return const AuthResult.success();
+    } on FirebaseAuthException catch (e) {
+      print(
+        'FirebaseAuthException during Google sign-in: ${e.code} ${e.message}',
+      );
+      return AuthResult.failure(_mapFirebaseErrorToFieldErrors(e));
+    } on PlatformException catch (e) {
+      print('PlatformException during Google sign-in: ${e.code} ${e.message}');
+      return AuthResult.failure(
+        AuthFieldErrors(
+          general: e.message ?? 'Platform error during Google sign-in.',
+        ),
+      );
+    } catch (e, st) {
+      print('Unknown error during Google sign-in: $e');
+      print(st);
+      return AuthResult.failure(AuthFieldErrors(general: e.toString()));
     }
   }
 }

@@ -380,8 +380,35 @@ class _LoginPageState extends State<LoginPage> {
                               SizedBox(
                                 width: double.infinity,
                                 child: OutlinedButton(
-                                  onPressed:
-                                      () {}, // TODO: Implement Google Login
+                                  onPressed: () async {
+                                    setState(() => _isSubmitting = true);
+                                    try {
+                                      final result = await _authService
+                                          .signUpWithGoogle();
+                                      if (result.success) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                const Dashboard(),
+                                          ),
+                                        );
+                                      } else if (result.errors.general !=
+                                          null) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              result.errors.general!,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } finally {
+                                      setState(() => _isSubmitting = false);
+                                    }
+                                  },
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 15,
