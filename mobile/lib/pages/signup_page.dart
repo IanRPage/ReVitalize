@@ -5,7 +5,9 @@ import 'package:mobile/pages/profile_setup_page.dart';
 import 'package:mobile/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+  final AuthService? authService;
+
+  const SignUpPage({super.key, this.authService});
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -19,7 +21,13 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  final _authService = AuthService();
+  late final AuthService _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = widget.authService ?? AuthService();
+  }
 
   bool _isObscure = true;
   bool _isSubmitting = false;

@@ -85,12 +85,8 @@ class AuthService {
         return const AuthFieldErrors(email: 'That email address is not valid.');
       case 'weak-password':
         return const AuthFieldErrors(
-          password: 'Password is too weak (min 6 characters).',
+          password: 'Password is too weak, make it stronger.',
         );
-      case 'user-not-found':
-        return const AuthFieldErrors(email: 'No user found with that email.');
-      case 'wrong-password':
-        return const AuthFieldErrors(password: 'Incorrect password.');
       case 'invalid-credential':
         return const AuthFieldErrors(
           password: 'The username or password entered is incorrect',
