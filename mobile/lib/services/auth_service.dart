@@ -48,7 +48,7 @@ class AuthService {
       return const AuthResult.success();
     } on FirebaseAuthException catch (e) {
       return AuthResult.failure(_mapFirebaseErrorToFieldErrors(e));
-    } catch (_) {
+    } catch (e) {
       return const AuthResult.failure(
         AuthFieldErrors(general: 'Unexpected error. Please try again'),
       );
@@ -91,6 +91,8 @@ class AuthService {
         return const AuthFieldErrors(
           password: 'The username or password entered is incorrect',
         );
+      case 'unknown':
+        return AuthFieldErrors(password: 'Password must contain:');
       default:
         return const AuthFieldErrors(
           general: 'Authentication failed. Please try again.',

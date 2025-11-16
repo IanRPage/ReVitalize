@@ -42,6 +42,26 @@ class _SignUpPageState extends State<SignUpPage> {
     super.dispose();
   }
 
+  List<String> _passwordRequirementViolations(String password) {
+    final v = <String>[];
+    if (password.length < 8) {
+      v.add('at least 8 characters');
+    }
+    if (!RegExp(r'[a-z]').hasMatch(password)) {
+      v.add('a lower case character');
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(password)) {
+      v.add('an upper case character');
+    }
+    if (!RegExp(r'\d').hasMatch(password)) {
+      v.add('a number');
+    }
+    if (!RegExp(r'[^A-Za-z0-9]').hasMatch(password)) {
+      v.add('a special character');
+    }
+    return v;
+  }
+
   Future<void> _submit() async {
     setState(() {
       _fieldErrors = AuthFieldErrors.none;
@@ -55,8 +75,6 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() => _isSubmitting = true);
 
     try {
-      final username = _usernameController.text
-          .trim(); // TODO: deal with username controller
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
@@ -343,7 +361,19 @@ class _SignUpPageState extends State<SignUpPage> {
                                           if (v.isEmpty) {
                                             return 'Password is required';
                                           }
-                                          return _fieldErrors.password;
+                                          String message = '';
+                                          List<String> violations =
+                                              _passwordRequirementViolations(
+                                                value!,
+                                              );
+                                          for (String msg in violations) {
+                                            message += '\n * $msg';
+                                          }
+                                          if (_fieldErrors.password != null) {
+                                            return _fieldErrors.password! +
+                                                message;
+                                          }
+                                          return null;
                                         },
                                       ),
                                     ],

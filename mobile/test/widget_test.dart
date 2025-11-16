@@ -69,7 +69,7 @@ void main() {
     final fake = FakeAuthService(
       onSignup: ({required email, required password}) async {
         return const AuthResult.failure(
-          AuthFieldErrors(password: 'Password is too weak, make it stronger.'),
+          AuthFieldErrors(password: 'Password must contain:'),
         );
       },
     );
@@ -84,10 +84,7 @@ void main() {
     await tester.tap(find.text('Sign Up'));
     await tester.pump();
 
-    expect(
-      find.text('Password is too weak, make it stronger.'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Password must contain:'), findsOneWidget);
   });
 
   testWidgets('REGISTRATION_003: Fail registration with existing email', (
