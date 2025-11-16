@@ -34,7 +34,7 @@ class AuthResult {
 }
 
 class AuthService {
-  Future<AuthResult> signup({
+  Future<AuthResult> signupWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -53,7 +53,7 @@ class AuthService {
     }
   }
 
-  Future<AuthResult> login({
+  Future<AuthResult> loginWithEmailAndPassword({
     required String email,
     required String password,
   }) async {

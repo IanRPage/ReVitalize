@@ -48,7 +48,10 @@ class _LoginPageState extends State<LoginPage> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      final result = await _authService.login(email: email, password: password);
+      final result = await _authService.loginWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       if (!result.success) {
         setState(() => _fieldErrors = result.errors);

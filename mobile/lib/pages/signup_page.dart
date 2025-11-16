@@ -52,7 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      final result = await _authService.signup(
+      final result = await _authService.signupWithEmailAndPassword(
         email: email,
         password: password,
       );
