@@ -123,7 +123,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 final h = c.maxHeight;
                 final pad = w * 0.08;
                 final maxContent = 560.0;
-                final isSmall = h < 650;
+                final isSmall = h < 780;
 
                 return SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
