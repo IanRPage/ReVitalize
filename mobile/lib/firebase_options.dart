@@ -2,7 +2,7 @@
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+    show defaultTargetPlatform, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -16,9 +16,6 @@ import 'package:flutter/foundation.dart'
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
@@ -46,16 +43,6 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBpbu5fEOaaT0UcGd22eYZzo-i9QOrP58c',
-    appId: '1:246368661099:web:3d7779fe92ee80a6f7cb2e',
-    messagingSenderId: '246368661099',
-    projectId: 'revitalize-19a25',
-    authDomain: 'revitalize-19a25.firebaseapp.com',
-    storageBucket: 'revitalize-19a25.firebasestorage.app',
-    measurementId: 'G-78MQ46M220',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBdcFv-spqCGdW9kvhLYgriTNic-6rzuhg',
     appId: '1:246368661099:android:6d0f92dfc32a7ae3f7cb2e',
@@ -70,6 +57,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '246368661099',
     projectId: 'revitalize-19a25',
     storageBucket: 'revitalize-19a25.firebasestorage.app',
+    iosClientId: '246368661099-vbk5cg5npqhgqbcfqomdknc8i1gbo9cn.apps.googleusercontent.com',
     iosBundleId: 'com.example.mobile',
   );
+
 }
