@@ -8,7 +8,8 @@ import 'package:mobile/pages/dashboard.dart';
 final List<Map<String, dynamic>> testMyCommunities = [
   {
     'title': '100 Day Challenge',
-    'description': 'A 100 day accountability group that has been set up to help participants be the best of themselves.',
+    'description':
+        'A 100 day accountability group that has been set up to help participants be the best of themselves.',
     'participants': [
       'assets/icons/temp/woman-1.jpg',
       'assets/icons/temp/man-2.jpg',
@@ -17,7 +18,8 @@ final List<Map<String, dynamic>> testMyCommunities = [
   },
   {
     'title': '100 Day Challenge',
-    'description': 'A 100 day accountability group that has been set up to help participants be the best of themselves.',
+    'description':
+        'A 100 day accountability group that has been set up to help participants be the best of themselves.',
     'participants': [
       'assets/icons/temp/man-1.jpg',
       'assets/icons/temp/woman-1.jpg',
@@ -30,7 +32,8 @@ final List<Map<String, dynamic>> testMyCommunities = [
 final List<Map<String, dynamic>> testAllCommunities = [
   {
     'title': 'Test Community',
-    'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit..',
+    'description':
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit..',
     'participants': [
       'assets/icons/temp/woman-1.jpg',
       'assets/icons/temp/man-2.jpg',
@@ -38,7 +41,8 @@ final List<Map<String, dynamic>> testAllCommunities = [
   },
   {
     'title': 'Test Community',
-    'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit..',
+    'description':
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit..',
     'participants': [
       'assets/icons/temp/man-1.jpg',
       'assets/icons/temp/woman-1.jpg',
@@ -47,12 +51,11 @@ final List<Map<String, dynamic>> testAllCommunities = [
   },
   {
     'title': 'Test Community',
-    'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit..',
-    'participants': [
-      'assets/icons/temp/man-1.jpg',
-    ],
+    'description':
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit..',
+    'participants': ['assets/icons/temp/man-1.jpg'],
   },
-]; 
+];
 
 class Communities extends StatefulWidget {
   const Communities({super.key});
@@ -61,7 +64,8 @@ class Communities extends StatefulWidget {
   State<Communities> createState() => _CommunitiesState();
 }
 
-class _CommunitiesState extends State<Communities> with TickerProviderStateMixin {
+class _CommunitiesState extends State<Communities>
+    with TickerProviderStateMixin {
   late AnimationController controller;
   final PageController _myCommunitiesController = PageController(
     viewportFraction: 0.8,
@@ -71,11 +75,11 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
   void initState() {
     super.initState();
     controller =
-    AnimationController(vsync: this, duration: const Duration(seconds: 5))
-      ..addListener(() {
-        setState(() {});
-      })
-      ..repeat(reverse: true);
+        AnimationController(vsync: this, duration: const Duration(seconds: 5))
+          ..addListener(() {
+            setState(() {});
+          })
+          ..repeat(reverse: true);
   }
 
   @override
@@ -119,7 +123,6 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                   ),
                   child: Column(
                     children: [
-
                       // --HEADER--
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: pad / 2),
@@ -156,14 +159,19 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                                             border: InputBorder.none,
                                             hintText: "Search",
                                             hintStyle: TextStyle(
-                                                color: Color(0xFF9C9C9C),
-                                                fontWeight: FontWeight.w500,
+                                              color: Color(0xFF9C9C9C),
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          style: TextStyle(color: Color(0xFF2A2A2A)),
+                                          style: TextStyle(
+                                            color: Color(0xFF2A2A2A),
+                                          ),
                                         ),
                                       ),
-                                      Icon(Icons.search_rounded, color: Color(0xFF9C9C9C)),
+                                      Icon(
+                                        Icons.search_rounded,
+                                        color: Color(0xFF9C9C9C),
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -187,7 +195,8 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                           child: Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: pad,
-                              vertical: isSmall ? pad / 2.5 : pad / 1.5,),
+                              vertical: isSmall ? pad / 2.5 : pad / 1.5,
+                            ),
                             child: Column(
                               children: [
                                 SizedBox(height: 8),
@@ -197,7 +206,8 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           'My Communities',
@@ -225,11 +235,15 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                                       child: PageView.builder(
                                         controller: _myCommunitiesController,
                                         padEnds: false,
-                                        itemCount: testMyCommunities.length, //TODO: change testMyCommunities to actual data
+                                        itemCount: testMyCommunities
+                                            .length, //TODO: change testMyCommunities to actual data
                                         itemBuilder: (context, index) {
-                                          final community = testMyCommunities[index];
+                                          final community =
+                                              testMyCommunities[index];
                                           return Padding(
-                                            padding: const EdgeInsets.only(right: 16),
+                                            padding: const EdgeInsets.only(
+                                              right: 16,
+                                            ),
                                             child: _myCommunity(
                                               community["title"],
                                               community["description"],
@@ -259,7 +273,8 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
 
                                 // --DISCOVER COMMUNITIES--
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Discover',
@@ -291,7 +306,8 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                                       if (index == testAllCommunities.length) {
                                         return SizedBox(height: 50);
                                       }
-                                      final community = testAllCommunities[index]; //TODO: change testAllCommunities to actual data
+                                      final community =
+                                          testAllCommunities[index]; //TODO: change testAllCommunities to actual data
                                       return _discoverCommunity(
                                         community["title"],
                                         community["description"],
@@ -334,9 +350,7 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
               IconButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Dashboard(),
-                    ),
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
                   );
                 },
                 icon: Icon(Icons.home_rounded, color: Color(0xFFB2B2B2)),
@@ -351,7 +365,8 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                   );
                 },
                 icon: Icon(
-                  Icons.workspace_premium_rounded, color: Color(0xFFB2B2B2),
+                  Icons.workspace_premium_rounded,
+                  color: Color(0xFFB2B2B2),
                 ),
                 iconSize: 32,
               ),
@@ -377,11 +392,16 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
           ),
         ),
       ),
-      );
-    }
+    );
   }
+}
 
-Container _myCommunity(String title, String description, List<String> participants, int newPosts) {
+Container _myCommunity(
+  String title,
+  String description,
+  List<String> participants,
+  int newPosts,
+) {
   return Container(
     margin: EdgeInsets.only(bottom: 12),
     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -393,7 +413,6 @@ Container _myCommunity(String title, String description, List<String> participan
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,23 +435,31 @@ Container _myCommunity(String title, String description, List<String> participan
                               child: Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  ...participants.take(2).toList().asMap().entries.map((entry) {
-                                    return Positioned(
-                                      left: entry.key * 18,
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 1.5),
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: AssetImage(entry.value),
+                                  ...participants
+                                      .take(2)
+                                      .toList()
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                        return Positioned(
+                                          left: entry.key * 18,
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 1.5,
+                                              ),
+                                              image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: AssetImage(entry.value),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
+                                        );
+                                      }),
                                   if (participants.length > 2)
                                     Positioned(
                                       left: 2 * 18,
@@ -441,7 +468,10 @@ Container _myCommunity(String title, String description, List<String> participan
                                         height: 30,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 1.5),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
                                           color: Color(0xFF18B08E),
                                         ),
                                         child: Center(
@@ -461,7 +491,11 @@ Container _myCommunity(String title, String description, List<String> participan
                             ),
                             Spacer(),
                             IconButton(
-                              icon: Icon(Icons.share_rounded, color: Color(0xFFF6851F), size: 20),
+                              icon: Icon(
+                                Icons.share_rounded,
+                                color: Color(0xFFF6851F),
+                                size: 20,
+                              ),
                               onPressed: () {},
                               padding: EdgeInsets.zero,
                               constraints: BoxConstraints(),
@@ -498,10 +532,7 @@ Container _myCommunity(String title, String description, List<String> participan
                         Container(
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [
-                                Color(0xFFF76A6D),
-                                Color(0xFFF2AF77),
-                              ],
+                              colors: [Color(0xFFF76A6D), Color(0xFFF2AF77)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -512,16 +543,15 @@ Container _myCommunity(String title, String description, List<String> participan
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
                             child: Text(
-                            '$newPosts New Posts',
-                            style: TextStyle(
-                              color:
-                              Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              '$newPosts New Posts',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -541,7 +571,11 @@ Container _myCommunity(String title, String description, List<String> participan
   );
 }
 
-Container _discoverCommunity(String title, String description, List<String> participants) {
+Container _discoverCommunity(
+  String title,
+  String description,
+  List<String> participants,
+) {
   return Container(
     margin: EdgeInsets.only(bottom: 12),
     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -553,7 +587,6 @@ Container _discoverCommunity(String title, String description, List<String> part
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -566,7 +599,6 @@ Container _discoverCommunity(String title, String description, List<String> part
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-
                         Text(
                           title,
                           maxLines: 1,
@@ -597,29 +629,38 @@ Container _discoverCommunity(String title, String description, List<String> part
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             SizedBox(
-                              width: participants.length <= 2 ? (participants.length <= 1 ? 24 : 42) : 60,
+                              width: participants.length <= 2
+                                  ? (participants.length <= 1 ? 24 : 42)
+                                  : 60,
                               height: 30,
                               child: Stack(
                                 clipBehavior: Clip.none,
                                 children: [
-                                  ...participants.take(2).toList().asMap().entries.map((entry) {
-                                    return Positioned(
-                                      left: entry.key * 18,
-                                      child: Container(
-                                        width: 30,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 1.5),
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: AssetImage(entry.value),
+                                  ...participants
+                                      .take(2)
+                                      .toList()
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                        return Positioned(
+                                          left: entry.key * 18,
+                                          child: Container(
+                                            width: 30,
+                                            height: 30,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 1.5,
+                                              ),
+                                              image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: AssetImage(entry.value),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  ),
+                                        );
+                                      }),
 
                                   if (participants.length > 2)
                                     Positioned(
@@ -629,7 +670,10 @@ Container _discoverCommunity(String title, String description, List<String> part
                                         height: 30,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 1.5),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
                                           color: Color(0xFF18B08E),
                                         ),
                                         child: Center(
@@ -650,7 +694,10 @@ Container _discoverCommunity(String title, String description, List<String> part
                             Container(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFFF76A6D), Color(0xFFF3A175)],
+                                  colors: [
+                                    Color(0xFFF76A6D),
+                                    Color(0xFFF3A175),
+                                  ],
                                   begin: Alignment.bottomLeft,
                                   end: Alignment.topRight,
                                 ),
@@ -678,7 +725,10 @@ Container _discoverCommunity(String title, String description, List<String> part
                                         ShaderMask(
                                           shaderCallback: (Rect bounds) {
                                             return const LinearGradient(
-                                              colors: [Color(0xFFF76A6D), Color(0xFFF3A175)],
+                                              colors: [
+                                                Color(0xFFF76A6D),
+                                                Color(0xFFF3A175),
+                                              ],
                                               begin: Alignment.bottomLeft,
                                               end: Alignment.topRight,
                                             ).createShader(bounds);
@@ -693,7 +743,10 @@ Container _discoverCommunity(String title, String description, List<String> part
                                         ShaderMask(
                                           shaderCallback: (Rect bounds) {
                                             return const LinearGradient(
-                                              colors: [Color(0xFFF57A70), Color(0xFFF49875)],
+                                              colors: [
+                                                Color(0xFFF57A70),
+                                                Color(0xFFF49875),
+                                              ],
                                               begin: Alignment.bottomLeft,
                                               end: Alignment.topRight,
                                             ).createShader(bounds);
@@ -701,8 +754,7 @@ Container _discoverCommunity(String title, String description, List<String> part
                                           child: const Text(
                                             "Join",
                                             style: TextStyle(
-                                              color:
-                                              Colors.white,
+                                              color: Colors.white,
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -714,7 +766,7 @@ Container _discoverCommunity(String title, String description, List<String> part
                                 ),
                               ),
                             ),
-                          ]
+                          ],
                         ),
                       ],
                     ),
