@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/pages/leaderboard.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:mobile/pages/dashboard.dart';
 
@@ -51,7 +52,7 @@ final List<Map<String, dynamic>> testAllCommunities = [
       'assets/icons/temp/man-1.jpg',
     ],
   },
-];
+]; 
 
 class Communities extends StatefulWidget {
   const Communities({super.key});
@@ -342,7 +343,13 @@ class _CommunitiesState extends State<Communities> with TickerProviderStateMixin
                 iconSize: 32,
               ),
               IconButton(
-                onPressed: () {}, //TODO: navigate to leaderboards page
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const Leaderboard(),
+                    ),
+                  );
+                },
                 icon: Icon(
                   Icons.workspace_premium_rounded, color: Color(0xFFB2B2B2),
                 ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:mobile/pages/leaderboard.dart';
+import 'package:mobile/pages/communities.dart';
 
 final List<Map<String, dynamic>> testChallenges = [
   {
@@ -518,7 +520,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 iconSize: 32,
               ),
               IconButton(
-                onPressed: () {}, //TODO: navigate to leaderboards page
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const Leaderboard(),
+                    ),
+                  );
+                },
                 icon: Icon(
                   Icons.workspace_premium_rounded,
                   color: Color(0xFFB2B2B2),
@@ -526,7 +534,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 iconSize: 32,
               ),
               IconButton(
-                onPressed: () {}, //TODO: navigate to community page
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const Communities(),
+                    ),
+                  );
+                },
                 icon: Icon(Icons.groups_rounded, color: Color(0xFFB2B2B2)),
                 iconSize: 36,
               ),
