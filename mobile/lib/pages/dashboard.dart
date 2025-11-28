@@ -19,9 +19,7 @@ final List<Map<String, dynamic>> testChallenges = [
     'title': 'Drink 2L of Water',
     'progress': 0.8,
     'timeLeft': '1 day 12 hours left',
-    'participants': [
-      'assets/icons/temp/man-1.jpg',
-    ],
+    'participants': ['assets/icons/temp/man-1.jpg'],
   },
   {
     'title': 'Run a mile',
@@ -30,7 +28,7 @@ final List<Map<String, dynamic>> testChallenges = [
     'participants': [
       'assets/icons/temp/man-1.jpg',
       'assets/icons/temp/woman-1.jpg',
-      'assets/icons/temp/man-2.jpg'
+      'assets/icons/temp/man-2.jpg',
     ],
   },
 ];
@@ -104,11 +102,26 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final int totalHabits = testHabits.length; // TODO: change testHabits to actual data
-    final int completed = testHabits.where((habit) => habit["progress"] == 1.0).length; // TODO: change testHabits to actual data
-    final double streakProgress = totalHabits == 0 ? 0.0 : completed / totalHabits;
-    final List<String> days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",];
-    final int currentStreak = computeCurrentStreak(testHabits); //TODO: change testHabits to actual data
+    final int totalHabits =
+        testHabits.length; // TODO: change testHabits to actual data
+    final int completed = testHabits
+        .where((habit) => habit["progress"] == 1.0)
+        .length; // TODO: change testHabits to actual data
+    final double streakProgress = totalHabits == 0
+        ? 0.0
+        : completed / totalHabits;
+    final List<String> days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    final int currentStreak = computeCurrentStreak(
+      testHabits,
+    ); //TODO: change testHabits to actual data
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -137,184 +150,194 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 final isSmall = h < 730;
 
                 return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: maxContent,
-                      minHeight: h,
-                    ),
-                    child: Column(
-                      children: [
-
-                        // --HEADER--
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: pad / 2),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: isSmall ? 12 : 20),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.circle, //TODO: Change to profile picture
-                                    color: Colors.white,
-                                    size: pad * 1.75,
-                                  ),
-                                  SizedBox(width: isSmall ? 10 : 14),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        TimeChecker.getTimeOfDayGreeting(),
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        TimeChecker.getFullDate(),
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: isSmall ? pad / 2 : pad / 1.75,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        Expanded(
-                          child: Container(
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(25),
-                            ),
-                          ),
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: pad,
-                                vertical: isSmall ? pad / 2.5 : pad / 1.5, ),
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 8),
-
-                                  // -- PROGRESS --
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: days.map((d) => _mainDayProgress(d, testHabits)).toList(),
-                                  ),
-
-                                  SizedBox(height: isSmall ? 12 : 20),
-
-                                  // --CURRENT STREAK--
-                                  Container(
-                                    width: double.infinity,
-                                    height: pad * 2.5,
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Color(0xFFF2AF77),
-                                          Color(0xFFF76A6D),
-                                        ],
-                                        begin: Alignment.bottomLeft,
-                                        end: Alignment.topCenter,
-                                      ),
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(8),
-                                        bottom: Radius.circular(8),
+                  constraints: BoxConstraints(
+                    maxWidth: maxContent,
+                    minHeight: h,
+                  ),
+                  child: Column(
+                    children: [
+                      // --HEADER--
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: pad / 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: isSmall ? 12 : 20),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons
+                                      .circle, //TODO: Change to profile picture
+                                  color: Colors.white,
+                                  size: pad * 1.75,
+                                ),
+                                SizedBox(width: isSmall ? 10 : 14),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      TimeChecker.getTimeOfDayGreeting(),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: pad / 2,
-                                          vertical: pad / 3,
-                                        ),
-                                        child:
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-
-                                              Text(
-                                                'Current Streak',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              Text(
-                                                '$currentStreak ${(currentStreak > 1 || currentStreak == 0) ? 'days' : 'day'}',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              SizedBox(height: isSmall ? 4 : 8),
-
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: LinearProgressIndicator(
-                                                        valueColor:
-                                                        AlwaysStoppedAnimation<Color>(Color(0xFFFFFFFF)),
-                                                        value: streakProgress,
-                                                        backgroundColor: Colors.white
-                                                            .withValues(alpha: 0.35),
-                                                        borderRadius:
-                                                        BorderRadius.vertical(
-                                                          top: Radius.circular(8),
-                                                          bottom: Radius.circular(
-                                                            8,
-                                                          ),
-                                                        ),
-                                                        minHeight: 6
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 6),
-                                                  Text(
-                                                    '${(streakProgress * 100).toInt()}%',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 10,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                    Text(
+                                      TimeChecker.getFullDate(),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
                                       ),
+                                    ),
+                                    SizedBox(
+                                      height: isSmall ? pad / 2 : pad / 1.75,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(25),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: pad,
+                              vertical: isSmall ? pad / 2.5 : pad / 1.5,
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 8),
+
+                                // -- PROGRESS --
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: days
+                                      .map(
+                                        (d) => _mainDayProgress(d, testHabits),
+                                      )
+                                      .toList(),
+                                ),
+
+                                SizedBox(height: isSmall ? 12 : 20),
+
+                                // --CURRENT STREAK--
+                                Container(
+                                  width: double.infinity,
+                                  height: pad * 2.5,
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFFF2AF77),
+                                        Color(0xFFF76A6D),
+                                      ],
+                                      begin: Alignment.bottomLeft,
+                                      end: Alignment.topCenter,
+                                    ),
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(8),
+                                      bottom: Radius.circular(8),
+                                    ),
                                   ),
-
-                                  SizedBox(height: isSmall ? 8 : 16),
-
-                                  // --CHALLENGES--
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Challenges',
-                                            style: TextStyle(
-                                              color: Color(0xFF2A2A2A),
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: pad / 2,
+                                      vertical: pad / 3,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Current Streak',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          Text(
+                                        ),
+                                        Text(
+                                          '$currentStreak ${(currentStreak > 1 || currentStreak == 0) ? 'days' : 'day'}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        SizedBox(height: isSmall ? 4 : 8),
+
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: LinearProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                      Color
+                                                    >(Color(0xFFFFFFFF)),
+                                                value: streakProgress,
+                                                backgroundColor: Colors.white
+                                                    .withValues(alpha: 0.35),
+                                                borderRadius:
+                                                    BorderRadius.vertical(
+                                                      top: Radius.circular(8),
+                                                      bottom: Radius.circular(
+                                                        8,
+                                                      ),
+                                                    ),
+                                                minHeight: 6,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '${(streakProgress * 100).toInt()}%',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                SizedBox(height: isSmall ? 8 : 16),
+
+                                // --CHALLENGES--
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Challenges',
+                                          style: TextStyle(
+                                            color: Color(0xFF2A2A2A),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () =>
+                                              {}, // TODO: view all behavior on Challenges
+                                          child: Text(
                                             'View all',
                                             style: TextStyle(
                                               color: Color(0xFF18B08E),
@@ -322,57 +345,64 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                        ],
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(height: isSmall ? 4 : 8),
+
+                                    SizedBox(
+                                      height: 90,
+                                      child: PageView.builder(
+                                        controller: _challengeController,
+                                        itemCount: testChallenges
+                                            .length, //TODO: change testChallenges to actual data
+                                        itemBuilder: (context, index) {
+                                          final challenge =
+                                              testChallenges[index];
+                                          return _challenge(
+                                            challenge["title"],
+                                            challenge["progress"],
+                                            challenge["timeLeft"],
+                                            challenge["participants"] ?? [],
+                                          );
+                                        },
                                       ),
+                                    ),
 
-                                      SizedBox(height: isSmall ? 4 : 8),
-
-                                      SizedBox(
-                                        height: 90,
-                                        child: PageView.builder(
-                                          controller: _challengeController,
-                                          itemCount: testChallenges.length, //TODO: change testChallenges to actual data
-                                          itemBuilder: (context, index) {
-                                            final challenge = testChallenges[index];
-                                            return _challenge(
-                                              challenge["title"],
-                                              challenge["progress"],
-                                              challenge["timeLeft"],
-                                              challenge["participants"] ?? [],
-                                            );
-                                          },
+                                    Center(
+                                      child: SmoothPageIndicator(
+                                        controller: _challengeController,
+                                        count: testChallenges.length,
+                                        effect: ExpandingDotsEffect(
+                                          dotHeight: isSmall ? 3 : 6,
+                                          dotWidth: 6,
+                                          spacing: 6,
+                                          activeDotColor: Color(0xFF5FD1E2),
+                                          dotColor: Colors.grey.shade300,
                                         ),
                                       ),
+                                    ),
+                                  ],
+                                ),
 
-                                      Center(
-                                        child: SmoothPageIndicator(
-                                          controller: _challengeController,
-                                          count: testChallenges.length,
-                                          effect: ExpandingDotsEffect(
-                                            dotHeight: isSmall ? 3 : 6,
-                                            dotWidth: 6,
-                                            spacing: 6,
-                                            activeDotColor: Color(0xFF5FD1E2),
-                                            dotColor: Colors.grey.shade300,
-                                          ),
-                                        ),
+                                // --HABITS--
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Habits',
+                                      style: TextStyle(
+                                        color: Color(0xFF2A2A2A),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ],
-                                  ),
-
-                                  // --HABITS--
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Habits',
-                                        style: TextStyle(
-                                          color: Color(0xFF2A2A2A),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          {}, // TODO: view all behavior on Habits
+                                      child: Text(
                                         'View all',
                                         style: TextStyle(
                                           color: Color(0xFF18B08E),
@@ -380,33 +410,35 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: isSmall ? 4 : 8),
-
-                                  Expanded(
-                                    child: ListView.builder(
-                                      padding: EdgeInsets.zero,
-                                      physics: BouncingScrollPhysics(),
-                                      itemCount: testHabits.length + 1,
-                                      itemBuilder: (context, index) {
-                                        if (index == testHabits.length) {
-                                          return SizedBox(height: 50);
-                                        }
-                                        final habit = testHabits[index]; //TODO: change testHabits to actual data
-                                        return _habit(
-                                          habit["title"],
-                                          habit["targetValue"],
-                                          habit["currentValue"],
-                                          habit["unit"],
-                                          habit["progress"],
-                                          habit["completedDays"] ?? [],
-                                          habit["themeColor"],
-                                        );
-                                      },
                                     ),
+                                  ],
+                                ),
+
+                                SizedBox(height: isSmall ? 4 : 8),
+
+                                Expanded(
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    physics: BouncingScrollPhysics(),
+                                    itemCount: testHabits.length + 1,
+                                    itemBuilder: (context, index) {
+                                      if (index == testHabits.length) {
+                                        return SizedBox(height: 50);
+                                      }
+                                      final habit =
+                                          testHabits[index]; //TODO: change testHabits to actual data
+                                      return _habit(
+                                        habit["title"],
+                                        habit["targetValue"],
+                                        habit["currentValue"],
+                                        habit["unit"],
+                                        habit["progress"],
+                                        habit["completedDays"] ?? [],
+                                        habit["themeColor"],
+                                      );
+                                    },
                                   ),
+                                ),
                               ],
                             ),
                           ),
@@ -414,10 +446,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       ),
                     ],
                   ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
 
           // --ADD NEW BUTTON--
           Positioned(
@@ -479,8 +511,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             child: const Text(
                               "Add new",
                               style: TextStyle(
-                                color:
-                                    Colors.white,
+                                color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -566,7 +597,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   Stack _mainDayProgress(String day, List<Map<String, dynamic>> habits) {
     final int total = habits.length;
-    final int completed = habits.where((habit) => habit["completedDays"].contains(day)).length;
+    final int completed = habits
+        .where((habit) => habit["completedDays"].contains(day))
+        .length;
     final double progress = total == 0 ? 0.0 : completed / total;
 
     return Stack(
@@ -597,7 +630,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
-  Stack _habitDayProgress(String day, String themeColor, List<String> completedDays) {
+  Stack _habitDayProgress(
+    String day,
+    String themeColor,
+    List<String> completedDays,
+  ) {
     final Map<String, List<Color>> themeGradients = {
       "blue": [Color(0xFFC0F4FF), Color(0xFF33DFF9)],
       "green": [Color(0xFFC0FFF1), Color(0xFF26D7AE)],
@@ -617,12 +654,17 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           decoration: BoxDecoration(
             gradient: isCompleted
                 ? LinearGradient(
-              colors: themeGradients[themeColor] ?? [Colors.grey, Colors.grey],
-              begin: Alignment.bottomLeft,
-              end: Alignment.topRight,
-            ) : null,
+                    colors:
+                        themeGradients[themeColor] ??
+                        [Colors.grey, Colors.grey],
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                  )
+                : null,
             shape: BoxShape.circle,
-            border: isCompleted ? null : Border.all(color: Color(0xFFEDEDED), width: 2),
+            border: isCompleted
+                ? null
+                : Border.all(color: Color(0xFFEDEDED), width: 2),
           ),
         ),
         Text(
@@ -637,7 +679,12 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
-  Container _challenge(String title, double progress, String timeLeft, List<String> participants) {
+  Container _challenge(
+    String title,
+    double progress,
+    String timeLeft,
+    List<String> participants,
+  ) {
     return Container(
       margin: EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -688,12 +735,16 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
                     const SizedBox(width: 6),
                     SizedBox(
-                      width: participants.length <= 2 ? (participants.length <= 1 ? 24 : 42) : 60,
+                      width: participants.length <= 2
+                          ? (participants.length <= 1 ? 24 : 42)
+                          : 60,
                       height: 26,
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          ...participants.take(2).toList().asMap().entries.map((entry) {
+                          ...participants.take(2).toList().asMap().entries.map((
+                            entry,
+                          ) {
                             return Positioned(
                               left: entry.key * 18,
                               child: Container(
@@ -701,7 +752,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 height: 24,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
                                   image: DecorationImage(
                                     fit: BoxFit.cover,
                                     image: AssetImage(entry.value),
@@ -709,8 +763,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 ),
                               ),
                             );
-                          },
-                          ),
+                          }),
 
                           if (participants.length > 2)
                             Positioned(
@@ -720,7 +773,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                 height: 24,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 1.5),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
                                   color: Color(0xFF5FD1E2),
                                 ),
                                 child: Center(
@@ -760,7 +816,15 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
-  Container _habit(String title, int targetValue, int currentValue, String unit, double progress, List<String> completedDays, String themeColor) {
+  Container _habit(
+    String title,
+    int targetValue,
+    int currentValue,
+    String unit,
+    double progress,
+    List<String> completedDays,
+    String themeColor,
+  ) {
     final Map<String, Color> themeColors = {
       "blue": Color(0xFF5FD1E2),
       "green": Color(0xFF26D7AD),
@@ -807,10 +871,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
               if (progress == 1.0)
                 Icon(
-                    Icons.check_rounded,
-                    size: 16,
-                    color: themeColors[themeColor] ?? Colors.grey,
-                    fontWeight: FontWeight.bold
+                  Icons.check_rounded,
+                  size: 16,
+                  color: themeColors[themeColor] ?? Colors.grey,
+                  fontWeight: FontWeight.bold,
                 ),
             ],
           ),
@@ -867,7 +931,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                       child: _habitDayProgress(day, themeColor, completedDays),
                     );
                   }).toList(),
-                )
+                ),
               ],
             ),
           ),
@@ -888,14 +952,22 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 color: themeColors[themeColor],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
   int computeCurrentStreak(List<Map<String, dynamic>> habits) {
-    final daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",]; // to match DateTime order
+    final daysOrder = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ]; // to match DateTime order
     final int today = DateTime.now().weekday - 1;
     int index = today - 1;
     if (index < 0) index = 6;
