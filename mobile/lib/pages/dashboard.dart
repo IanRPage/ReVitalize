@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:mobile/pages/leaderboard.dart';
 import 'package:mobile/pages/communities.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile/services/profile_service.dart';
 
 final List<Map<String, dynamic>> testChallenges = [
   {
@@ -83,6 +85,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   late AnimationController controller;
   final PageController _challengeController = PageController();
 
+  String? _profilePicUrl;
+  bool _isLoadingProfile = true;
+
   @override
   void initState() {
     super.initState();
@@ -92,12 +97,67 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             setState(() {});
           })
           ..repeat(reverse: true);
+    _loadProfile();
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      final profileService = ProfileService();
+      final data = await profileService.getProfile(uid: uid);
+
+      setState(() {
+        _profilePicUrl = data?['profilePic'] as String?;
+        _isLoadingProfile = false;
+      });
+    } catch (e, st) {
+      debugPrint('Error loading profile: $e');
+      debugPrint('$st');
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Widget _buildProfileAvatar(double size) {
+    final radius = size / 2;
+
+    if (_isLoadingProfile) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      );
+    }
+
+    // when no picture is set
+    if (_profilePicUrl == null || _profilePicUrl!.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const Icon(Icons.person, color: Colors.white, size: 28),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.white.withValues(alpha: 0.2),
+      backgroundImage: NetworkImage(_profilePicUrl!),
+    );
   }
 
   @override
@@ -166,12 +226,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons
-                                      .circle, //TODO: Change to profile picture
-                                  color: Colors.white,
-                                  size: pad * 1.75,
-                                ),
+                                _buildProfileAvatar(pad * 1.75),
                                 SizedBox(width: isSmall ? 10 : 14),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

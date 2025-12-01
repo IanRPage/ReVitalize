@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/pages/leaderboard.dart';
+import 'package:mobile/services/profile_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:mobile/pages/dashboard.dart';
 
@@ -69,6 +71,9 @@ class _CommunitiesState extends State<Communities>
     viewportFraction: 0.8,
   );
 
+  String? _profilePicUrl;
+  bool _isLoadingProfile = true;
+
   @override
   void initState() {
     super.initState();
@@ -78,12 +83,67 @@ class _CommunitiesState extends State<Communities>
             setState(() {});
           })
           ..repeat(reverse: true);
+    _loadProfile();
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      final profileService = ProfileService();
+      final data = await profileService.getProfile(uid: uid);
+
+      setState(() {
+        _profilePicUrl = data?['profilePic'] as String?;
+        _isLoadingProfile = false;
+      });
+    } catch (e, st) {
+      debugPrint('Error loading profile: $e');
+      debugPrint('$st');
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Widget _buildProfileAvatar(double size) {
+    final radius = size / 2;
+
+    if (_isLoadingProfile) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      );
+    }
+
+    // when no picture is set
+    if (_profilePicUrl == null || _profilePicUrl!.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const Icon(Icons.person, color: Colors.white, size: 28),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.white.withValues(alpha: 0.2),
+      backgroundImage: NetworkImage(_profilePicUrl!),
+    );
   }
 
   @override
@@ -131,13 +191,20 @@ class _CommunitiesState extends State<Communities>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Communities",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    _buildProfileAvatar(pad * 1.75),
+                                    SizedBox(width: isSmall ? 10 : 14),
+                                    Text(
+                                      "Communities",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
                                 SizedBox(height: isSmall ? 8 : 12),

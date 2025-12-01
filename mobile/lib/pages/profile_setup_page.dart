@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile/pages/dashboard.dart';
 import 'package:mobile/services/profile_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobile/services/cloud_storage_service.dart';
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
@@ -12,13 +16,22 @@ class ProfileSetupPage extends StatefulWidget {
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
   final TextEditingController usernameController = TextEditingController();
-  final TextEditingController profilePicController =
-      TextEditingController(); // TODO figure out how to get profile picture url
+  File? profilePic; // TODO figure out how to get profile picture url
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
+
+  Future<void> pickImage(ImageSource src) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: src);
+    if (pickedFile != null) {
+      setState(() {
+        profilePic = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,45 +135,49 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         const SizedBox(height: 24),
 
                         // PROFILE PICTURE
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: const Color(0xFFEDEDED),
-                              child: const CircleAvatar(
-                                radius: 46,
-                                backgroundColor: Color(0xFFEDEDED),
-                                child: Icon(
-                                  Icons.person,
-                                  size: 70,
-                                  color: Color(0xFF7C7C7C),
-                                ),
+                        InkWell(
+                          onTap: () => pickImage(ImageSource.gallery),
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: const Color(0xFFEDEDED),
+                                backgroundImage: profilePic != null
+                                    ? FileImage(profilePic!) as ImageProvider
+                                    : null,
+                                child: profilePic == null
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 70,
+                                        color: Color(0xFF7C7C7C),
+                                      )
+                                    : null,
                               ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                height: 30,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF5FD1E2),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF5FD1E2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
 
                         const SizedBox(height: 24),
@@ -237,17 +254,32 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           height: 48,
                           child: ElevatedButton(
                             onPressed: () async {
-                              Map<String, dynamic> data = {
-                                'username': usernameController.text,
-                                'profilePic': profilePicController.text,
-                                'fullName': nameController.text,
-                                'dob': dobController.text,
-                                'gender': genderController.text,
-                                'height': heightController.text,
-                                'weight': weightController.text,
-                              };
+                              final uid =
+                                  FirebaseAuth.instance.currentUser!.uid;
                               final profileService = ProfileService();
+
+                              // get profile picture
                               try {
+                                String? profilePicUrl;
+                                if (profilePic != null) {
+                                  profilePicUrl = await CloudStorageService
+                                      .instance
+                                      .uploadProfilePicture(
+                                        uid: uid,
+                                        file: profilePic!,
+                                      );
+                                }
+
+                                // setup data for database
+                                Map<String, dynamic> data = {
+                                  'username': usernameController.text,
+                                  'profilePic': profilePicUrl,
+                                  'fullName': nameController.text,
+                                  'dob': dobController.text,
+                                  'gender': genderController.text,
+                                  'height': heightController.text,
+                                  'weight': weightController.text,
+                                };
                                 await profileService.createProfile(
                                   uid: FirebaseAuth.instance.currentUser!.uid,
                                   data: data,
@@ -260,6 +292,13 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                               } catch (e, st) {
                                 debugPrint('Error creating profile: $e');
                                 debugPrint('$st');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Failed to configure profile information',
+                                    ),
+                                  ),
+                                );
                               }
                             }, // TODO database create
                             style: ElevatedButton.styleFrom(

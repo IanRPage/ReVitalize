@@ -230,43 +230,6 @@ class _SignUpPageState extends State<SignUpPage> {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  // USERNAME FIELD
-                                  // Column(
-                                  //   crossAxisAlignment:
-                                  //       CrossAxisAlignment.start,
-                                  //   children: [
-                                  //     const SizedBox(height: 12),
-                                  //     Text(
-                                  //       'Username',
-                                  //       style: TextStyle(
-                                  //         fontSize: 14,
-                                  //         fontWeight: FontWeight.w500,
-                                  //         color: Colors.grey[700],
-                                  //       ),
-                                  //     ),
-
-                                  //     const SizedBox(height: 6),
-
-                                  //     TextFormField(
-                                  //       controller: _usernameController,
-                                  //       decoration: _fieldDecoration(isSmall),
-                                  //       textInputAction: TextInputAction.next,
-                                  //       validator: (value) {
-                                  //         if (value == null ||
-                                  //             value.trim().isEmpty) {
-                                  //           return 'Username is required';
-                                  //         }
-                                  //         if (value.trim().length < 3) {
-                                  //           return 'Username must be at least 3 characters';
-                                  //         }
-                                  //         return null;
-                                  //       },
-                                  //     ),
-                                  //   ],
-                                  // ),
-
-                                  // SizedBox(height: isSmall ? 12 : 16),
-
                                   // EMAIL FIELD
                                   Column(
                                     crossAxisAlignment:

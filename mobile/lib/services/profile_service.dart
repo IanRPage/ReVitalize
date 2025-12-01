@@ -17,7 +17,9 @@ class ProfileService {
     await _db.collection('users').doc(uid).update(data);
   }
 
-  Future<DocumentSnapshot> getProfile(String uid) {
-    return _db.collection('users').doc(uid).get();
+  Future<Map<String, dynamic>?> getProfile({required String uid}) async {
+    final doc = await _db.collection('users').doc(uid).get();
+    if (!doc.exists) return null;
+    return doc.data();
   }
 }
