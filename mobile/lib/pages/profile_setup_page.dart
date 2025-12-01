@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile/pages/dashboard.dart';
+import 'package:mobile/services/profile_service.dart';
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
@@ -8,8 +11,11 @@ class ProfileSetupPage extends StatefulWidget {
 }
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController profilePicController =
+      TextEditingController(); // TODO figure out how to get profile picture url
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
@@ -115,7 +121,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       children: [
                         const SizedBox(height: 24),
 
-                        // Avatar
+                        // PROFILE PICTURE
                         Stack(
                           children: [
                             CircleAvatar(
@@ -159,11 +165,24 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
                         const SizedBox(height: 24),
 
-                        _buildTextField('Full Name', nameController, isSmall),
+                        // USERNAME
+                        _buildTextField(
+                          'Username',
+                          usernameController,
+                          isSmall,
+                        ),
+
                         const SizedBox(height: 16),
+
+                        // NAME
+                        _buildTextField('Full Name', nameController, isSmall),
+
+                        const SizedBox(height: 16),
+
+                        // DATE OF BIRTH
                         _buildTextField(
                           'Date of Birth',
-                          ageController,
+                          dobController,
                           isSmall,
                           keyboardType: TextInputType.number,
                           suffixIconWidget: IconButton(
@@ -171,45 +190,78 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                             icon: const ImageIcon(
                               AssetImage('assets/icons/calendar.png'),
                             ),
-                            // icon: const Icon(Icons.calendar_month),
                             color: Colors.grey,
                           ),
                         ),
+
                         const SizedBox(height: 16),
+
+                        // GENDER
                         _buildTextField(
                           'Gender',
                           genderController,
                           isSmall,
-                          readOnly: true,
+                          // readOnly: true,
                           suffixIconWidget: IconButton(
                             onPressed: () {}, // TODO: add gender dropdown
                             icon: const Icon(Icons.keyboard_arrow_down),
                             color: Colors.grey,
                           ),
                         ),
+
                         const SizedBox(height: 16),
+
+                        // HEIGHT
                         _buildTextField(
                           'Height',
                           heightController,
                           isSmall,
                           keyboardType: TextInputType.number,
                         ),
+
                         const SizedBox(height: 16),
+
+                        // WEIGHT
                         _buildTextField(
                           'Weight',
                           weightController,
                           isSmall,
                           keyboardType: TextInputType.number,
                         ),
+
                         const SizedBox(height: 24),
 
+                        // CONTINUE
                         SizedBox(
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Continue button works
-                            },
+                            onPressed: () async {
+                              Map<String, dynamic> data = {
+                                'username': usernameController.text,
+                                'profilePic': profilePicController.text,
+                                'fullName': nameController.text,
+                                'dob': dobController.text,
+                                'gender': genderController.text,
+                                'height': heightController.text,
+                                'weight': weightController.text,
+                              };
+                              final profileService = ProfileService();
+                              try {
+                                await profileService.createProfile(
+                                  uid: FirebaseAuth.instance.currentUser!.uid,
+                                  data: data,
+                                );
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => const Dashboard(),
+                                  ),
+                                );
+                              } catch (e, st) {
+                                debugPrint('Error creating profile: $e');
+                                debugPrint('$st');
+                              }
+                            }, // TODO database create
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF5FD1E2),
                               shape: RoundedRectangleBorder(

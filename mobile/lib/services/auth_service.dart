@@ -30,9 +30,9 @@ class AuthResult {
 
   const AuthResult.success() : success = true, errors = AuthFieldErrors.none;
 
-  const AuthResult.failure(AuthFieldErrors errors)
+  const AuthResult.failure(AuthFieldErrors errs)
     : success = false,
-      errors = errors;
+      errors = errs;
 }
 
 class AuthService {
