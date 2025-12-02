@@ -274,7 +274,7 @@ class _NotificationsState extends State<Notifications> {
         dashboardColor: Color(0xFFB2B2B2),
         leaderboardColor: Color(0xFFB2B2B2),
         communitiesColor: Color(0xFFB2B2B2),
-        notificationsColor: Color(0xFF26D7AD),
+        notificationsColor: Color(0xFFF39E75),
         profileColor: Color(0xFFB2B2B2),
         currentPage: NavPage.notifications,
       ),

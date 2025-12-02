@@ -97,9 +97,9 @@ class _NavBarState extends State<NavBar> {
             IconButton(
               onPressed: () {
                 // TODO: uncomment when profile page complete
-                // if (widget.currentPage != NavPage.profile) {
-                //   Navigator.of(context).pushReplacementNamed('/profile');
-                // }
+                 if (widget.currentPage != NavPage.profile) {
+                   Navigator.of(context).pushReplacementNamed('/profile');
+                 }
               },
               icon: Icon(Icons.person_rounded, color: widget.profileColor),
               iconSize: 32,

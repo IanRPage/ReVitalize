@@ -7,6 +7,7 @@ import 'package:mobile/pages/login_page.dart';
 import 'package:mobile/pages/notifications.dart';
 import 'package:mobile/pages/profile_setup_page.dart';
 import 'package:mobile/pages/signup_page.dart';
+import 'package:mobile/pages/profile_page.dart';
 import 'firebase_options.dart';
 import 'pages/landing_page.dart';
 
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
         '/leaderboard': (context) => const Leaderboard(),
         '/communities': (context) => const Communities(),
         '/notifications': (context) => const Notifications(),
-        // '/profile': (context) => const ProfilePage(), // TODO: when we have it
+        '/profile': (context) => const ProfilePage(), // TODO: when we have it
       },
     );
   }
