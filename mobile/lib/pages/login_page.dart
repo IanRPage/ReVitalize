@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/dashboard.dart';
-import 'package:mobile/pages/landing_page.dart';
-import 'package:mobile/pages/signup_page.dart';
 import 'package:mobile/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -75,11 +72,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // await Future.delayed(const Duration(seconds: 1));
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (BuildContext context) => const Dashboard()),
-      );
+      Navigator.of(context).pushReplacementNamed('/dashboard');
     } finally {
       setState(() => _isSubmitting = false);
     }
@@ -146,11 +139,9 @@ class _LoginPageState extends State<LoginPage> {
                               // back button
                               IconButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const LandingPage(),
-                                    ),
-                                  );
+                                  Navigator.of(
+                                    context,
+                                  ).pushReplacementNamed('/landing_page');
                                 },
                                 icon: Icon(
                                   Icons.arrow_back_rounded,
@@ -394,13 +385,9 @@ class _LoginPageState extends State<LoginPage> {
                                       final result = await _authService
                                           .signUpWithGoogle();
                                       if (result.success) {
-                                        Navigator.push(
+                                        Navigator.of(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                const Dashboard(),
-                                          ),
-                                        );
+                                        ).pushReplacementNamed('/dashboard');
                                       } else if (result.errors.general !=
                                           null) {
                                         ScaffoldMessenger.of(
@@ -521,9 +508,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const SignUpPage()),
-                );
+                Navigator.of(context).pushReplacementNamed('/signup_page');
               },
               child: const Text(
                 "Sign Up",

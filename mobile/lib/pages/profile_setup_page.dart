@@ -1,4 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile/services/profile_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobile/services/cloud_storage_service.dart';
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({super.key});
@@ -8,11 +14,60 @@ class ProfileSetupPage extends StatefulWidget {
 }
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
+  final TextEditingController usernameController = TextEditingController();
+  File? profilePic; // TODO figure out how to get profile picture url
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
+
+  final List<String> genderOptions = ['Male', 'Female', 'Other'];
+
+  Future<void> pickImage(ImageSource src) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: src);
+    if (pickedFile != null) {
+      setState(() {
+        profilePic = File(pickedFile.path);
+      });
+    }
+  }
+
+  void _showGenderPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            const Text(
+              "Select Gender",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            ...genderOptions.map((gender) {
+              return ListTile(
+                title: Text(gender),
+                onTap: () {
+                  setState(() {
+                    genderController.text = gender;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+            const SizedBox(height: 12),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,101 +170,185 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       children: [
                         const SizedBox(height: 24),
 
-                        // Avatar
-                        Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: const Color(0xFFEDEDED),
-                              child: const CircleAvatar(
-                                radius: 46,
-                                backgroundColor: Color(0xFFEDEDED),
-                                child: Icon(
-                                  Icons.person,
-                                  size: 70,
-                                  color: Color(0xFF7C7C7C),
-                                ),
+                        // PROFILE PICTURE
+                        InkWell(
+                          onTap: () => pickImage(ImageSource.gallery),
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: const Color(0xFFEDEDED),
+                                backgroundImage: profilePic != null
+                                    ? FileImage(profilePic!) as ImageProvider
+                                    : null,
+                                child: profilePic == null
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 70,
+                                        color: Color(0xFF7C7C7C),
+                                      )
+                                    : null,
                               ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                height: 30,
-                                width: 30,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF5FD1E2),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF5FD1E2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    size: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
 
                         const SizedBox(height: 24),
 
-                        _buildTextField('Full Name', nameController, isSmall),
+                        // USERNAME
+                        _buildTextField(
+                          'Username',
+                          usernameController,
+                          isSmall,
+                        ),
+
                         const SizedBox(height: 16),
+
+                        // NAME
+                        _buildTextField('Full Name', nameController, isSmall),
+
+                        const SizedBox(height: 16),
+
+                        // DATE OF BIRTH
                         _buildTextField(
                           'Date of Birth',
-                          ageController,
+                          dobController,
                           isSmall,
                           keyboardType: TextInputType.number,
                           suffixIconWidget: IconButton(
-                            onPressed: () {}, // TODO: add calendar drop down
+                            onPressed: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime.now(),
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  dobController.text =
+                                      "${picked.month}/${picked.day}/${picked.year}";
+                                });
+                              }
+                            }, // TODO: add calendar drop down
                             icon: const ImageIcon(
                               AssetImage('assets/icons/calendar.png'),
                             ),
-                            // icon: const Icon(Icons.calendar_month),
                             color: Colors.grey,
                           ),
                         ),
+
                         const SizedBox(height: 16),
+
+                        // GENDER
                         _buildTextField(
                           'Gender',
                           genderController,
                           isSmall,
-                          readOnly: true,
+                          // readOnly: true,
                           suffixIconWidget: IconButton(
-                            onPressed: () {}, // TODO: add gender dropdown
+                            onPressed:
+                                _showGenderPicker, // TODO: add gender dropdown
                             icon: const Icon(Icons.keyboard_arrow_down),
                             color: Colors.grey,
                           ),
                         ),
+
                         const SizedBox(height: 16),
+
+                        // HEIGHT
                         _buildTextField(
                           'Height',
                           heightController,
                           isSmall,
                           keyboardType: TextInputType.number,
                         ),
+
                         const SizedBox(height: 16),
+
+                        // WEIGHT
                         _buildTextField(
                           'Weight',
                           weightController,
                           isSmall,
                           keyboardType: TextInputType.number,
                         ),
+
                         const SizedBox(height: 24),
 
+                        // CONTINUE
                         SizedBox(
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Continue button works
-                            },
+                            onPressed: () async {
+                              final uid =
+                                  FirebaseAuth.instance.currentUser!.uid;
+                              final profileService = ProfileService();
+
+                              // get profile picture
+                              try {
+                                String? profilePicUrl;
+                                if (profilePic != null) {
+                                  profilePicUrl = await CloudStorageService
+                                      .instance
+                                      .uploadProfilePicture(
+                                        uid: uid,
+                                        file: profilePic!,
+                                      );
+                                }
+
+                                // setup data for database
+                                Map<String, dynamic> data = {
+                                  'username': usernameController.text,
+                                  'profilePic': profilePicUrl,
+                                  'fullName': nameController.text,
+                                  'dob': dobController.text,
+                                  'gender': genderController.text,
+                                  'height': heightController.text,
+                                  'weight': weightController.text,
+                                };
+                                await profileService.createProfile(
+                                  uid: FirebaseAuth.instance.currentUser!.uid,
+                                  data: data,
+                                );
+                                Navigator.of(
+                                  context,
+                                ).pushReplacementNamed('/dashboard');
+                              } catch (e, st) {
+                                debugPrint('Error creating profile: $e');
+                                debugPrint('$st');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Failed to configure profile information',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }, // TODO database create
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF5FD1E2),
                               shape: RoundedRectangleBorder(

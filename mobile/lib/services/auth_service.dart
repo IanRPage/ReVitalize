@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/services.dart';
 
@@ -30,9 +31,9 @@ class AuthResult {
 
   const AuthResult.success() : success = true, errors = AuthFieldErrors.none;
 
-  const AuthResult.failure(AuthFieldErrors errors)
+  const AuthResult.failure(AuthFieldErrors errs)
     : success = false,
-      errors = errors;
+      errors = errs;
 }
 
 class AuthService {
@@ -123,20 +124,22 @@ class AuthService {
       await FirebaseAuth.instance.signInWithCredential(credential);
       return const AuthResult.success();
     } on FirebaseAuthException catch (e) {
-      print(
+      debugPrint(
         'FirebaseAuthException during Google sign-in: ${e.code} ${e.message}',
       );
       return AuthResult.failure(_mapFirebaseErrorToFieldErrors(e));
     } on PlatformException catch (e) {
-      print('PlatformException during Google sign-in: ${e.code} ${e.message}');
+      debugPrint(
+        'PlatformException during Google sign-in: ${e.code} ${e.message}',
+      );
       return AuthResult.failure(
         AuthFieldErrors(
           general: e.message ?? 'Platform error during Google sign-in.',
         ),
       );
     } catch (e, st) {
-      print('Unknown error during Google sign-in: $e');
-      print(st);
+      debugPrint('Unknown error during Google sign-in: $e');
+      debugPrint('$st');
       return AuthResult.failure(AuthFieldErrors(general: e.toString()));
     }
   }

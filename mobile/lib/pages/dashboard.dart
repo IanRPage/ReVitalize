@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/services/habit_service.dart';
+import 'package:mobile/widgets/nav_bar.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:mobile/pages/leaderboard.dart';
-import 'package:mobile/pages/communities.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobile/services/profile_service.dart';
 
 final List<Map<String, dynamic>> testChallenges = [
   {
@@ -33,45 +37,6 @@ final List<Map<String, dynamic>> testChallenges = [
   },
 ];
 
-final List<Map<String, dynamic>> testHabits = [
-  {
-    'title': 'Drink Water',
-    'currentValue': 1000,
-    'targetValue': 2500,
-    'unit': 'ml',
-    'progress': 0.5,
-    'completedDays': ["Monday", "Thursday"],
-    'themeColor': 'green',
-  },
-  {
-    'title': 'Workout',
-    'currentValue': 2,
-    'targetValue': 2500,
-    'unit': 'hrs',
-    'progress': 1.0,
-    'completedDays': ["Monday", "Wednesday", "Thursday"],
-    'themeColor': 'red',
-  },
-  {
-    'title': 'Meditate',
-    'currentValue': 0,
-    'targetValue': 20,
-    'unit': 'min',
-    'progress': 0.0,
-    'completedDays': ["Monday", "Thursday"],
-    'themeColor': 'orange',
-  },
-  {
-    'title': 'Swim',
-    'currentValue': 0,
-    'targetValue': 20,
-    'unit': 'km',
-    'progress': 0.3,
-    'completedDays': ["Tuesday", "Wednesday", "Thursday"],
-    'themeColor': 'blue',
-  },
-];
-
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -83,6 +48,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   late AnimationController controller;
   final PageController _challengeController = PageController();
 
+  String? _profilePicUrl;
+  bool _isLoadingProfile = true;
+
+  final HabitService _habitService = HabitService();
+  List<Map<String, dynamic>> _habits = [];
+  StreamSubscription<List<Map<String, dynamic>>>? _habitsSub;
+
   @override
   void initState() {
     super.initState();
@@ -92,21 +64,110 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             setState(() {});
           })
           ..repeat(reverse: true);
+    _loadProfile();
+    _listenToHabits();
   }
 
   @override
   void dispose() {
+    _habitsSub?.cancel();
     controller.dispose();
     super.dispose();
   }
 
+  void _listenToHabits() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    _habitsSub = _habitService
+        .watchHabits(uid: uid)
+        .listen(
+          (habits) {
+            setState(() {
+              _habits = habits;
+            });
+          },
+          onError: (e, st) {
+            debugPrint('Error watching habits: $e');
+            debugPrint('$st');
+          },
+        );
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      final profileService = ProfileService();
+      final data = await profileService.getProfile(uid: uid);
+
+      setState(() {
+        _profilePicUrl = data?['profilePic'] as String?;
+        _isLoadingProfile = false;
+      });
+    } catch (e, st) {
+      debugPrint('Error loading profile: $e');
+      debugPrint('$st');
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Future<void> _loadHabits() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final habits = await _habitService.getHabits(uid: uid);
+
+      setState(() {
+        _habits = habits;
+      });
+    } catch (e, st) {
+      debugPrint('Error loading habits: $e');
+      debugPrint('$st');
+      setState(() {});
+    }
+  }
+
+  Widget _buildProfileAvatar(double size) {
+    final radius = size / 2;
+
+    if (_isLoadingProfile) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      );
+    }
+
+    // when no picture set
+    if (_profilePicUrl == null || _profilePicUrl!.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const Icon(Icons.person, color: Colors.white, size: 28),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.white.withValues(alpha: 0.2),
+      backgroundImage: NetworkImage(_profilePicUrl!),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final int totalHabits =
-        testHabits.length; // TODO: change testHabits to actual data
-    final int completed = testHabits
-        .where((habit) => habit["progress"] == 1.0)
-        .length; // TODO: change testHabits to actual data
+    final habits = _habits;
+    final int totalHabits = habits.length;
+    final int completed = habits
+        .where((habit) => habit['todayProgress'] == 1.0)
+        .length;
     final double streakProgress = totalHabits == 0
         ? 0.0
         : completed / totalHabits;
@@ -119,9 +180,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       "Friday",
       "Saturday",
     ];
-    final int currentStreak = computeCurrentStreak(
-      testHabits,
-    ); //TODO: change testHabits to actual data
+    final int currentStreak = computeCurrentStreak(habits);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -166,12 +225,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons
-                                      .circle, //TODO: Change to profile picture
-                                  color: Colors.white,
-                                  size: pad * 1.75,
-                                ),
+                                _buildProfileAvatar(pad * 1.75),
                                 SizedBox(width: isSmall ? 10 : 14),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,9 +280,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: days
-                                      .map(
-                                        (d) => _mainDayProgress(d, testHabits),
-                                      )
+                                      .map((d) => _mainDayProgress(d, _habits))
                                       .toList(),
                                 ),
 
@@ -361,10 +413,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                           final challenge =
                                               testChallenges[index];
                                           return _challenge(
-                                            challenge["title"],
-                                            challenge["progress"],
-                                            challenge["timeLeft"],
-                                            challenge["participants"] ?? [],
+                                            challenge['title'],
+                                            challenge['progress'],
+                                            challenge['timeLeft'],
+                                            challenge['participants'] ?? [],
                                           );
                                         },
                                       ),
@@ -420,21 +472,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   child: ListView.builder(
                                     padding: EdgeInsets.zero,
                                     physics: BouncingScrollPhysics(),
-                                    itemCount: testHabits.length + 1,
+                                    itemCount: _habits.length + 1,
                                     itemBuilder: (context, index) {
-                                      if (index == testHabits.length) {
+                                      if (index == _habits.length) {
                                         return SizedBox(height: 50);
                                       }
-                                      final habit =
-                                          testHabits[index]; //TODO: change testHabits to actual data
+                                      final habit = _habits[index];
                                       return _habit(
-                                        habit["title"],
-                                        habit["targetValue"],
-                                        habit["currentValue"],
-                                        habit["unit"],
-                                        habit["progress"],
-                                        habit["completedDays"] ?? [],
-                                        habit["themeColor"],
+                                        habit['id'],
+                                        habit['title'],
+                                        habit['targetValue'],
+                                        habit['todayValue'],
+                                        habit['unit'],
+                                        habit['todayProgress'],
+                                        habit['completedDays'] ?? [],
+                                        habit['themeColor'],
                                       );
                                     },
                                   ),
@@ -458,24 +510,25 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             right: 0,
             child: Center(
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [Color(0xFFF76A6D), Color(0xFFF3A175)],
                     begin: Alignment.bottomLeft,
                     end: Alignment.topRight,
                   ),
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.all(Radius.circular(32)),
                 ),
                 padding: const EdgeInsets.all(3),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(32),
+                    splashColor: const Color(0xFFF76A6D).withAlpha(51),
+                    highlightColor: const Color(0xFFF3A175).withAlpha(38),
                     onTap: () {
-                      // TODO: action on tap
+                      debugPrint("'Add new' button tapped");
+                      _showAddHabitBottomSheet();
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -529,68 +582,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       ),
 
       //--NAVIGATION BAR--
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.home_rounded, color: Color(0xFF18B08E)),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Leaderboard(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  Icons.workspace_premium_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Communities(),
-                    ),
-                  );
-                },
-                icon: Icon(Icons.groups_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 36,
-              ),
-              IconButton(
-                onPressed: () {}, //TODO: navigate to notifications page
-                icon: Icon(
-                  Icons.notifications_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {}, //TODO: navigate to profile page
-                icon: Icon(Icons.person_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: NavBar(
+        dashboardColor: Color(0xFF18B08E),
+        leaderboardColor: Color(0xFFB2B2B2),
+        communitiesColor: Color(0xFFB2B2B2),
+        notificationsColor: Color(0xFFB2B2B2),
+        profileColor: Color(0xFFB2B2B2),
+        currentPage: NavPage.dashboard,
       ),
     );
   }
@@ -630,6 +628,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
+  // for weekday bubbles in each habit card
   Stack _habitDayProgress(
     String day,
     String themeColor,
@@ -817,6 +816,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   Container _habit(
+    String habitId,
     String title,
     int targetValue,
     int currentValue,
@@ -826,10 +826,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     String themeColor,
   ) {
     final Map<String, Color> themeColors = {
-      "blue": Color(0xFF5FD1E2),
-      "green": Color(0xFF26D7AD),
-      "red": Color(0xFFF7616B),
-      "orange": Color(0xFFFF8129),
+      "blue": const Color(0xFF5FD1E2),
+      "green": const Color(0xFF26D7AD),
+      "red": const Color(0xFFF7616B),
+      "orange": const Color(0xFFFF8129),
+      "purple": const Color(0xFFB169F7),
+      "yellow": const Color(0xFFFFD74A),
+      "teal": const Color(0xFF3FD1C6),
+      "pink": const Color(0xFFFF6BA8),
     };
 
     final List<String> weekDays = [
@@ -869,7 +873,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 ),
               ),
 
-              if (progress == 1.0)
+              if (progress >= 1.0)
                 Icon(
                   Icons.check_rounded,
                   size: 16,
@@ -938,7 +942,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
           GestureDetector(
             onTap: () {
-              // TODO: Add Habit popup
+              _showIncrementHabitDialog(
+                habitId: habitId,
+                title: title,
+                unit: unit,
+                currentValue: currentValue,
+                targetValue: targetValue,
+              );
             },
             child: Container(
               padding: EdgeInsets.all(3),
@@ -958,6 +968,373 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> _showIncrementHabitDialog({
+    required String habitId,
+    required String title,
+    required String unit,
+    required int currentValue,
+    required int targetValue,
+  }) async {
+    final controller = TextEditingController(text: '1'); // default increment
+
+    final int? delta = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Log $title'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (targetValue > 0)
+                Text(
+                  'Today: $currentValue / $targetValue $unit',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Amount to add',
+                  suffixText: unit,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final text = controller.text.trim();
+                final value = int.tryParse(text);
+                if (value == null || value <= 0) {
+                  return;
+                }
+                Navigator.of(context).pop(value);
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (delta == null) return; // user cancelled
+
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      await _habitService.addToHabitToday(
+        uid: uid,
+        habitId: habitId,
+        delta: delta,
+      );
+
+      await _loadHabits();
+    } catch (e, st) {
+      debugPrint('Error incrementing habit: $e');
+      debugPrint('$st');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update habit. Please try again.'),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showAddHabitBottomSheet() {
+    final titleController = TextEditingController();
+    final targetController = TextEditingController();
+    final unitController = TextEditingController(text: 'min');
+
+    String selectedThemeColor = 'green';
+    final themeColors = <String, Color>{
+      "blue": const Color(0xFF5FD1E2),
+      "green": const Color(0xFF26D7AD),
+      "red": const Color(0xFFF7616B),
+      "orange": const Color(0xFFFF8129),
+      "purple": const Color(0xFFB169F7),
+      "yellow": const Color(0xFFFFD74A),
+      "teal": const Color(0xFF3FD1C6),
+      "pink": const Color(0xFFFF6BA8),
+    };
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 12,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    'Add new habit',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2A2A2A),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Habit name
+                  const Text(
+                    'Habit name',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. Drink Water',
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Target + Unit
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Target',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF666666),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: targetController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: 'e.g. 2500',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Unit',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF666666),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: unitController,
+                              decoration: InputDecoration(
+                                hintText: 'ml / min / km',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Theme color chips
+                  const Text(
+                    'Theme color',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: themeColors.entries.map((entry) {
+                      final key = entry.key;
+                      final color = entry.value;
+                      final isSelected = selectedThemeColor == key;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setModalState(() {
+                            selectedThemeColor = key;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? color.withAlpha(38)
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: isSelected ? color : Colors.grey.shade300,
+                              width: 1.3,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                key[0].toUpperCase() + key.substring(1),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: isSelected
+                                      ? Colors.black
+                                      : const Color(0xFF555555),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Add button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF18B08E),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        final title = titleController.text.trim();
+                        final targetText = targetController.text.trim();
+                        final unit = unitController.text.trim().isEmpty
+                            ? 'unit'
+                            : unitController.text.trim();
+
+                        if (title.isEmpty || targetText.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill in name and target.'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final targetValue = int.tryParse(targetText) ?? 0;
+
+                        final uid = FirebaseAuth.instance.currentUser!.uid;
+
+                        await _habitService.addHabit(
+                          uid: uid,
+                          title: title,
+                          targetValue: targetValue,
+                          unit: unit,
+                          themeColor: selectedThemeColor,
+                        );
+
+                        Navigator.of(context).pop();
+                        await _loadHabits();
+                      },
+                      child: const Text(
+                        'Add habit',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   int computeCurrentStreak(List<Map<String, dynamic>> habits) {
     final daysOrder = [
       "Monday",
@@ -967,7 +1344,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       "Friday",
       "Saturday",
       "Sunday",
-    ]; // to match DateTime order
+    ];
     final int today = DateTime.now().weekday - 1;
     int index = today - 1;
     if (index < 0) index = 6;

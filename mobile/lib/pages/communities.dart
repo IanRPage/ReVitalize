@@ -1,7 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/leaderboard.dart';
+import 'package:mobile/services/profile_service.dart';
+import 'package:mobile/widgets/nav_bar.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:mobile/pages/dashboard.dart';
 
 final List<Map<String, dynamic>> testMyCommunities = [
   {
@@ -69,6 +70,9 @@ class _CommunitiesState extends State<Communities>
     viewportFraction: 0.8,
   );
 
+  String? _profilePicUrl;
+  bool _isLoadingProfile = true;
+
   @override
   void initState() {
     super.initState();
@@ -78,12 +82,67 @@ class _CommunitiesState extends State<Communities>
             setState(() {});
           })
           ..repeat(reverse: true);
+    _loadProfile();
   }
 
   @override
   void dispose() {
     controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      final profileService = ProfileService();
+      final data = await profileService.getProfile(uid: uid);
+
+      setState(() {
+        _profilePicUrl = data?['profilePic'] as String?;
+        _isLoadingProfile = false;
+      });
+    } catch (e, st) {
+      debugPrint('Error loading profile: $e');
+      debugPrint('$st');
+      setState(() {
+        _isLoadingProfile = false;
+      });
+    }
+  }
+
+  Widget _buildProfileAvatar(double size) {
+    final radius = size / 2;
+
+    if (_isLoadingProfile) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        ),
+      );
+    }
+
+    // when no picture is set
+    if (_profilePicUrl == null || _profilePicUrl!.isEmpty) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: const Icon(Icons.person, color: Colors.white, size: 28),
+      );
+    }
+
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: Colors.white.withValues(alpha: 0.2),
+      backgroundImage: NetworkImage(_profilePicUrl!),
+    );
   }
 
   @override
@@ -131,13 +190,20 @@ class _CommunitiesState extends State<Communities>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Communities",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    _buildProfileAvatar(pad * 1.75),
+                                    SizedBox(width: isSmall ? 10 : 14),
+                                    Text(
+                                      "Communities",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
                                 SizedBox(height: isSmall ? 8 : 12),
@@ -329,66 +395,13 @@ class _CommunitiesState extends State<Communities>
       ),
 
       //--NAVIGATION BAR--
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Dashboard()),
-                  );
-                },
-                icon: Icon(Icons.home_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Leaderboard(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  Icons.workspace_premium_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.groups_rounded, color: Color(0xFF5FD1E2)),
-                iconSize: 36,
-              ),
-              IconButton(
-                onPressed: () {}, //TODO: navigate to notifications page
-                icon: Icon(
-                  Icons.notifications_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {}, //TODO: navigate to profile page
-                icon: Icon(Icons.person_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: NavBar(
+        dashboardColor: Color(0xFFB2B2B2),
+        leaderboardColor: Color(0xFFB2B2B2),
+        communitiesColor: Color(0xFF5FD1E2),
+        notificationsColor: Color(0xFFB2B2B2),
+        profileColor: Color(0xFFB2B2B2),
+        currentPage: NavPage.communities,
       ),
     );
   }
