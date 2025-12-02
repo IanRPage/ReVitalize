@@ -10,43 +10,105 @@ class HabitService {
     return _db.collection('users').doc(uid).collection('habits');
   }
 
+  String _weekdayName(int weekday) {
+    const names = <String>[
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    return names[(weekday - 1) % 7];
+  }
+
+  Future<List<String>> _completedDaysForCurrentWeek(
+    DocumentReference<Map<String, dynamic>> habitRef,
+  ) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final daysSinceSunday = today.weekday % 7;
+    final startOfWeek = today.subtract(Duration(days: daysSinceSunday));
+    final endOfWeek = startOfWeek.add(const Duration(days: 7));
+
+    final logsSnap = await habitRef.collection('logs').get();
+
+    final completedDays = <String>{};
+
+    for (final logDoc in logsSnap.docs) {
+      final data = logDoc.data();
+
+      if (data['completed'] != true) continue;
+
+      final ts = data['date'] as Timestamp?;
+      if (ts == null) continue;
+
+      final dt = ts.toDate();
+
+      if (dt.isBefore(startOfWeek) || !dt.isBefore(endOfWeek)) continue;
+
+      final name = _weekdayName(dt.weekday);
+      completedDays.add(name);
+    }
+
+    return completedDays.toList();
+  }
+
   Future<List<Map<String, dynamic>>> getHabits({required String uid}) async {
     final snapshot = await _habitsRef(
       uid,
     ).orderBy('createdAt', descending: true).get();
-    return snapshot.docs.map((doc) {
+
+    final List<Map<String, dynamic>> habits = [];
+
+    for (final doc in snapshot.docs) {
       final data = doc.data();
-      return {
+
+      final completedDays = await _completedDaysForCurrentWeek(doc.reference);
+
+      habits.add({
         'id': doc.id,
         'title': data['title'] as String? ?? '',
         'targetValue': data['targetValue'] as int? ?? 0,
         'unit': data['unit'] as String? ?? '',
         'themeColor': data['themeColor'] as String? ?? 'green',
-        'currentValue': data['todayValue'] as int? ?? 0,
-        'progress': (data['todayProgress'] as num?)?.toDouble() ?? 0.0,
-        // you can later hydrate completedDays from logs if you want
-        'completedDays': <String>[],
-      };
-    }).toList();
+        'todayValue': data['todayValue'] as int? ?? 0,
+        'todayProgress': (data['todayProgress'] as num?)?.toDouble() ?? 0.0,
+        'completedDays': completedDays,
+      });
+    }
+
+    return habits;
   }
 
   Stream<List<Map<String, dynamic>>> watchHabits({required String uid}) {
     return _habitsRef(
       uid,
-    ).orderBy('createdAt', descending: true).snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
+    ).orderBy('createdAt', descending: true).snapshots().asyncMap((
+      snapshot,
+    ) async {
+      final List<Map<String, dynamic>> habits = [];
+
+      for (final doc in snapshot.docs) {
         final data = doc.data();
-        return {
+
+        final completedDays = await _completedDaysForCurrentWeek(doc.reference);
+
+        habits.add({
           'id': doc.id,
           'title': data['title'] as String? ?? '',
           'targetValue': data['targetValue'] as int? ?? 0,
           'unit': data['unit'] as String? ?? '',
           'themeColor': data['themeColor'] as String? ?? 'green',
-          'currentValue': data['todayValue'] as int? ?? 0,
-          'progress': (data['todayProgress'] as num?)?.toDouble() ?? 0.0,
-          'completedDays': <String>[],
-        };
-      }).toList();
+          'todayValue': data['todayValue'] as int? ?? 0,
+          'todayProgress': (data['todayProgress'] as num?)?.toDouble() ?? 0.0,
+          'completedDays': completedDays,
+        });
+      }
+
+      return habits;
     });
   }
 

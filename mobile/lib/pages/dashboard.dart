@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -53,6 +55,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   final HabitService _habitService = HabitService();
   List<Map<String, dynamic>> _habits = [];
+  StreamSubscription<List<Map<String, dynamic>>>? _habitsSub;
 
   @override
   void initState() {
@@ -64,13 +67,31 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           })
           ..repeat(reverse: true);
     _loadProfile();
-    _loadHabits();
+    _listenToHabits();
   }
 
   @override
   void dispose() {
+    _habitsSub?.cancel();
     controller.dispose();
     super.dispose();
+  }
+
+  void _listenToHabits() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    _habitsSub = _habitService
+        .watchHabits(uid: uid)
+        .listen(
+          (habits) {
+            setState(() {
+              _habits = habits;
+            });
+          },
+          onError: (e, st) {
+            debugPrint('Error watching habits: $e');
+            debugPrint('$st');
+          },
+        );
   }
 
   Future<void> _loadProfile() async {
@@ -147,7 +168,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     final habits = _habits;
     final int totalHabits = habits.length;
     final int completed = habits
-        .where((habit) => habit["progress"] == 1.0)
+        .where((habit) => habit['todayProgress'] == 1.0)
         .length;
     final double streakProgress = totalHabits == 0
         ? 0.0
@@ -394,10 +415,10 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                           final challenge =
                                               testChallenges[index];
                                           return _challenge(
-                                            challenge["title"],
-                                            challenge["progress"],
-                                            challenge["timeLeft"],
-                                            challenge["participants"] ?? [],
+                                            challenge['title'],
+                                            challenge['progress'],
+                                            challenge['timeLeft'],
+                                            challenge['participants'] ?? [],
                                           );
                                         },
                                       ),
@@ -461,13 +482,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                       final habit = _habits[index];
                                       return _habit(
                                         habit['id'],
-                                        habit["title"],
-                                        habit["targetValue"],
-                                        habit["currentValue"],
-                                        habit["unit"],
-                                        habit["progress"],
-                                        habit["completedDays"] ?? [],
-                                        habit["themeColor"],
+                                        habit['title'],
+                                        habit['targetValue'],
+                                        habit['todayValue'],
+                                        habit['unit'],
+                                        habit['todayProgress'],
+                                        habit['completedDays'] ?? [],
+                                        habit['themeColor'],
                                       );
                                     },
                                   ),
@@ -612,7 +633,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
               IconButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationsPage(),
+                    ),
                   );
                 },
                 icon: Icon(
@@ -668,6 +691,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
+  // for weekday bubbles in each habit card
   Stack _habitDayProgress(
     String day,
     String themeColor,
@@ -865,10 +889,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     String themeColor,
   ) {
     final Map<String, Color> themeColors = {
-      "blue": Color(0xFF5FD1E2),
-      "green": Color(0xFF26D7AD),
-      "red": Color(0xFFF7616B),
-      "orange": Color(0xFFFF8129),
+      "blue": const Color(0xFF5FD1E2),
+      "green": const Color(0xFF26D7AD),
+      "red": const Color(0xFFF7616B),
+      "orange": const Color(0xFFFF8129),
+      "purple": const Color(0xFFB169F7),
+      "yellow": const Color(0xFFFFD74A),
+      "teal": const Color(0xFF3FD1C6),
+      "pink": const Color(0xFFFF6BA8),
     };
 
     final List<String> weekDays = [
@@ -908,7 +936,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 ),
               ),
 
-              if (progress == 1.0)
+              if (progress >= 1.0)
                 Icon(
                   Icons.check_rounded,
                   size: 16,
@@ -1048,7 +1076,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 final text = controller.text.trim();
                 final value = int.tryParse(text);
                 if (value == null || value <= 0) {
-                  // just keep the dialog open if input is bad
                   return;
                 }
                 Navigator.of(context).pop(value);
@@ -1071,7 +1098,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         delta: delta,
       );
 
-      // Reload the habits so UI reflects the new todayValue / progress
       await _loadHabits();
     } catch (e, st) {
       debugPrint('Error incrementing habit: $e');
@@ -1271,7 +1297,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                           ),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? color.withOpacity(0.15)
+                                ? color.withAlpha(38)
                                 : Colors.grey.shade100,
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
@@ -1381,7 +1407,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       "Friday",
       "Saturday",
       "Sunday",
-    ]; // to match DateTime order
+    ];
     final int today = DateTime.now().weekday - 1;
     int index = today - 1;
     if (index < 0) index = 6;
