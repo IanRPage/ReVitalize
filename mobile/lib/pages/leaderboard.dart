@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/dashboard.dart';
 import 'package:mobile/pages/communities.dart';
 import 'package:mobile/services/profile_service.dart';
+import 'package:mobile/pages/notifications.dart';
 
 final List<Map<String, dynamic>> testGetCommunities = [
   {
@@ -1014,7 +1015,11 @@ class _LeaderboardState extends State<Leaderboard>
                 iconSize: 36,
               ),
               IconButton(
-                onPressed: () {}, //TODO: navigate to notifications page
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                      );
+                    }, //TODO: navigate to notifications page
                 icon: Icon(
                   Icons.notifications_rounded,
                   color: Color(0xFFB2B2B2),

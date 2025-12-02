@@ -7,6 +7,7 @@ import 'package:mobile/pages/leaderboard.dart';
 import 'package:mobile/pages/communities.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile/services/profile_service.dart';
+import 'package:mobile/pages/notifications.dart';
 
 final List<Map<String, dynamic>> testChallenges = [
   {
@@ -609,7 +610,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 iconSize: 36,
               ),
               IconButton(
-                onPressed: () {}, //TODO: navigate to notifications page
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                  );
+                },
                 icon: Icon(
                   Icons.notifications_rounded,
                   color: Color(0xFFB2B2B2),

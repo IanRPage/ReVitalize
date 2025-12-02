@@ -4,6 +4,7 @@ import 'package:mobile/pages/leaderboard.dart';
 import 'package:mobile/services/profile_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:mobile/pages/dashboard.dart';
+import 'package:mobile/pages/notifications.dart';
 
 final List<Map<String, dynamic>> testMyCommunities = [
   {
@@ -441,7 +442,11 @@ class _CommunitiesState extends State<Communities>
                 iconSize: 36,
               ),
               IconButton(
-                onPressed: () {}, //TODO: navigate to notifications page
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const NotificationsPage()),
+                  );
+                },
                 icon: Icon(
                   Icons.notifications_rounded,
                   color: Color(0xFFB2B2B2),
