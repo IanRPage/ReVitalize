@@ -90,7 +90,7 @@ class AuthService {
         );
       case 'invalid-credential':
         return const AuthFieldErrors(
-          password: 'The username or password entered is incorrect',
+          password: 'The email or password entered is incorrect',
         );
       case 'unknown':
         return AuthFieldErrors(password: 'Password must contain:');
