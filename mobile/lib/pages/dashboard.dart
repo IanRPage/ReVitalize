@@ -513,24 +513,25 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             right: 0,
             child: Center(
               child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     colors: [Color(0xFFF76A6D), Color(0xFFF3A175)],
                     begin: Alignment.bottomLeft,
                     end: Alignment.topRight,
                   ),
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.all(Radius.circular(32)),
                 ),
                 padding: const EdgeInsets.all(3),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(32),
+                    splashColor: const Color(0xFFF76A6D).withAlpha(51),
+                    highlightColor: const Color(0xFFF3A175).withAlpha(38),
                     onTap: () {
-                      // TODO: action on tap
+                      debugPrint("'Add new' button tapped");
+                      _showAddHabitBottomSheet();
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -1010,6 +1011,293 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+
+  void _showAddHabitBottomSheet() {
+    final titleController = TextEditingController();
+    final targetController = TextEditingController();
+    final unitController = TextEditingController(text: 'min');
+
+    String selectedThemeColor = 'green';
+    final themeColors = <String, Color>{
+      "blue": const Color(0xFF5FD1E2),
+      "green": const Color(0xFF26D7AD),
+      "red": const Color(0xFFF7616B),
+      "orange": const Color(0xFFFF8129),
+      "purple": const Color(0xFFB169F7),
+      "yellow": const Color(0xFFFFD74A),
+      "teal": const Color(0xFF3FD1C6),
+      "pink": const Color(0xFFFF6BA8),
+    };
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 12,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    'Add new habit',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2A2A2A),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Habit name
+                  const Text(
+                    'Habit name',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. Drink Water',
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Target + Unit
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Target',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF666666),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: targetController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: 'e.g. 2500',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Unit',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF666666),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: unitController,
+                              decoration: InputDecoration(
+                                hintText: 'ml / min / km',
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Theme color chips
+                  const Text(
+                    'Theme color',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: themeColors.entries.map((entry) {
+                      final key = entry.key;
+                      final color = entry.value;
+                      final isSelected = selectedThemeColor == key;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setModalState(() {
+                            selectedThemeColor = key;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? color.withOpacity(0.15)
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: isSelected ? color : Colors.grey.shade300,
+                              width: 1.3,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                key[0].toUpperCase() + key.substring(1),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: isSelected
+                                      ? Colors.black
+                                      : const Color(0xFF555555),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Add button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF18B08E),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        final title = titleController.text.trim();
+                        final targetText = targetController.text.trim();
+                        final unit = unitController.text.trim().isEmpty
+                            ? 'unit'
+                            : unitController.text.trim();
+
+                        if (title.isEmpty || targetText.isEmpty) {
+                          // You can swap this for a nicer error UI if you want
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill in name and target.'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final targetValue = int.tryParse(targetText) ?? 0;
+
+                        setState(() {
+                          testHabits.add({
+                            'title': title,
+                            'currentValue': 0,
+                            'targetValue': targetValue,
+                            'unit': unit,
+                            'progress': 0.0,
+                            'completedDays': <String>[],
+                            'themeColor': selectedThemeColor,
+                          });
+                        });
+
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'Add habit',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
