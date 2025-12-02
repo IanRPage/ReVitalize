@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/landing_page.dart';
-import 'package:mobile/pages/login_page.dart';
-import 'package:mobile/pages/profile_setup_page.dart';
 import 'package:mobile/services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -98,12 +95,8 @@ class _SignUpPageState extends State<SignUpPage> {
       }
 
       // await Future.delayed(const Duration(seconds: 1));
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const ProfileSetupPage(),
-        ),
-      );
+
+      Navigator.of(context).pushReplacementNamed('/profile_setup');
     } finally {
       setState(() => _isSubmitting = false);
     }
@@ -170,11 +163,9 @@ class _SignUpPageState extends State<SignUpPage> {
                               // back button
                               IconButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const LandingPage(),
-                                    ),
-                                  );
+                                  Navigator.of(
+                                    context,
+                                  ).pushReplacementNamed('/landing_page');
                                 },
                                 icon: Icon(
                                   Icons.arrow_back_rounded,
@@ -427,12 +418,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                       final result = await _authService
                                           .signUpWithGoogle();
                                       if (result.success) {
-                                        Navigator.push(
+                                        Navigator.of(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                const ProfileSetupPage(),
-                                          ),
+                                        ).pushReplacementNamed(
+                                          '/profile_setup',
                                         );
                                       } else if (result.errors.general !=
                                           null) {
@@ -554,9 +543,7 @@ class _SignUpPageState extends State<SignUpPage> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
+                Navigator.of(context).pushReplacementNamed('/login_page');
               },
               child: const Text(
                 "Login",

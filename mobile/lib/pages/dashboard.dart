@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/services/habit_service.dart';
+import 'package:mobile/widgets/nav_bar.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:mobile/pages/leaderboard.dart';
-import 'package:mobile/pages/communities.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile/services/profile_service.dart';
-import 'package:mobile/pages/notifications.dart';
 
 final List<Map<String, dynamic>> testChallenges = [
   {
@@ -584,74 +582,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       ),
 
       //--NAVIGATION BAR--
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.home_rounded, color: Color(0xFF18B08E)),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Leaderboard(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  Icons.workspace_premium_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Communities(),
-                    ),
-                  );
-                },
-                icon: Icon(Icons.groups_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 36,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsPage(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  Icons.notifications_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {}, //TODO: navigate to profile page
-                icon: Icon(Icons.person_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: NavBar(
+        dashboardColor: Color(0xFF18B08E),
+        leaderboardColor: Color(0xFFB2B2B2),
+        communitiesColor: Color(0xFFB2B2B2),
+        notificationsColor: Color(0xFFB2B2B2),
+        profileColor: Color(0xFFB2B2B2),
+        currentPage: NavPage.dashboard,
       ),
     );
   }

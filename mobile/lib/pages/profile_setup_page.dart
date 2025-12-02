@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mobile/pages/dashboard.dart';
 import 'package:mobile/services/profile_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/services/cloud_storage_service.dart';
@@ -23,11 +22,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
 
-  final List<String> genderOptions = [
-    'Male',
-    'Female',
-    'Other'
-  ];
+  final List<String> genderOptions = ['Male', 'Female', 'Other'];
 
   Future<void> pickImage(ImageSource src) async {
     final picker = ImagePicker();
@@ -73,8 +68,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       },
     );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -248,14 +241,15 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           suffixIconWidget: IconButton(
                             onPressed: () async {
                               final picked = await showDatePicker(
-                                  context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(1900),
-                                  lastDate: DateTime.now()
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime.now(),
                               );
-                              if(picked != null){
+                              if (picked != null) {
                                 setState(() {
-                                  dobController.text = "${picked.month}/${picked.day}/${picked.year}";
+                                  dobController.text =
+                                      "${picked.month}/${picked.day}/${picked.year}";
                                 });
                               }
                             }, // TODO: add calendar drop down
@@ -275,7 +269,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           isSmall,
                           // readOnly: true,
                           suffixIconWidget: IconButton(
-                            onPressed: _showGenderPicker, // TODO: add gender dropdown
+                            onPressed:
+                                _showGenderPicker, // TODO: add gender dropdown
                             icon: const Icon(Icons.keyboard_arrow_down),
                             color: Colors.grey,
                           ),
@@ -339,11 +334,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                                   uid: FirebaseAuth.instance.currentUser!.uid,
                                   data: data,
                                 );
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const Dashboard(),
-                                  ),
-                                );
+                                Navigator.of(
+                                  context,
+                                ).pushReplacementNamed('/dashboard');
                               } catch (e, st) {
                                 debugPrint('Error creating profile: $e');
                                 debugPrint('$st');

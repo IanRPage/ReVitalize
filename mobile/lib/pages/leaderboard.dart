@@ -1,9 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/dashboard.dart';
-import 'package:mobile/pages/communities.dart';
 import 'package:mobile/services/profile_service.dart';
-import 'package:mobile/pages/notifications.dart';
+import 'package:mobile/widgets/nav_bar.dart';
 
 final List<Map<String, dynamic>> testGetCommunities = [
   {
@@ -970,70 +968,13 @@ class _LeaderboardState extends State<Leaderboard>
       ),
 
       //--NAVIGATION BAR--
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Dashboard()),
-                  );
-                },
-                icon: Icon(Icons.home_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.workspace_premium_rounded,
-                  color: Color(0xFFF6BD1F),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Communities(),
-                    ),
-                  );
-                },
-                icon: Icon(Icons.groups_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 36,
-              ),
-              IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const NotificationsPage()),
-                      );
-                    }, //TODO: navigate to notifications page
-                icon: Icon(
-                  Icons.notifications_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-              IconButton(
-                onPressed: () {}, //TODO: navigate to profile page
-                icon: Icon(Icons.person_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
-            ],
-          ),
-        ),
+      bottomNavigationBar: NavBar(
+        dashboardColor: Color(0xFFB2B2B2),
+        leaderboardColor: Color(0xFFF6BD1F),
+        communitiesColor: Color(0xFFB2B2B2),
+        notificationsColor: Color(0xFFB2B2B2),
+        profileColor: Color(0xFFB2B2B2),
+        currentPage: NavPage.leaderboard,
       ),
     );
   }

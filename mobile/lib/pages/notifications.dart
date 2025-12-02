@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mobile/pages/dashboard.dart';
-import 'package:mobile/pages/communities.dart';
 import 'package:mobile/services/profile_service.dart';
-import 'package:mobile/pages/leaderboard.dart';
+import 'package:mobile/widgets/nav_bar.dart';
 
 final List<Map<String, String>> testNotifications = [
   {
@@ -28,14 +26,14 @@ final List<Map<String, String>> testNotifications = [
   },
 ];
 
-class NotificationsPage extends StatefulWidget {
-  const NotificationsPage({super.key});
+class Notifications extends StatefulWidget {
+  const Notifications({super.key});
 
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
+  State<Notifications> createState() => _NotificationsState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
+class _NotificationsState extends State<Notifications> {
   String? _profilePicUrl;
   bool _isLoadingProfile = true;
   bool _showEmptyState = true; // flag to toggle empty vs notifications
@@ -270,87 +268,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(38),
-              blurRadius: 12,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // DASHBOARD
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Dashboard()),
-                  );
-                },
-                icon: const Icon(Icons.home_rounded, color: Color(0xFFB2B2B2)),
-                iconSize: 32,
-              ),
 
-              // LEADERBOARD
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Leaderboard(),
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.workspace_premium_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-
-              // COMMUNITIES
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const Communities(),
-                    ),
-                  );
-                },
-                icon: const Icon(
-                  Icons.groups_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 36,
-              ),
-
-              // NOTIFICATIONS
-              IconButton(
-                onPressed: () {}, // Current page
-                icon: const Icon(
-                  Icons.notifications_rounded,
-                  color: Color(0xFF26D7AD),
-                ),
-                iconSize: 32,
-              ),
-
-              // PROFILE
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.person_rounded,
-                  color: Color(0xFFB2B2B2),
-                ),
-                iconSize: 32,
-              ),
-            ],
-          ),
-        ),
+      // NAVIGATION BAR
+      bottomNavigationBar: NavBar(
+        dashboardColor: Color(0xFFB2B2B2),
+        leaderboardColor: Color(0xFFB2B2B2),
+        communitiesColor: Color(0xFFB2B2B2),
+        notificationsColor: Color(0xFF26D7AD),
+        profileColor: Color(0xFFB2B2B2),
+        currentPage: NavPage.notifications,
       ),
     );
   }
