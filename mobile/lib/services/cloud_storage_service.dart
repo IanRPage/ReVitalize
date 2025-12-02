@@ -13,7 +13,6 @@ class CloudStorageService {
     return _storage.ref().child('userProfilePictures').child(uid);
   }
 
-  /// upload user's profile picture and return download URL
   Future<String> uploadProfilePicture({
     required String uid,
     required File file,
@@ -26,8 +25,6 @@ class CloudStorageService {
     return url;
   }
 
-  /// return the download URL for user's profile picture if it exists,
-  /// null if it doesn't.
   Future<String?> getUserProfilePictureUrl(String uid) async {
     final ref = userProfilePictureRef(uid);
     try {

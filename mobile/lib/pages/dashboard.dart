@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/services/habit_service.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:mobile/pages/leaderboard.dart';
 import 'package:mobile/pages/communities.dart';
@@ -35,45 +36,6 @@ final List<Map<String, dynamic>> testChallenges = [
   },
 ];
 
-final List<Map<String, dynamic>> testHabits = [
-  {
-    'title': 'Drink Water',
-    'currentValue': 1000,
-    'targetValue': 2500,
-    'unit': 'ml',
-    'progress': 0.5,
-    'completedDays': ["Monday", "Thursday"],
-    'themeColor': 'green',
-  },
-  {
-    'title': 'Workout',
-    'currentValue': 2,
-    'targetValue': 2500,
-    'unit': 'hrs',
-    'progress': 1.0,
-    'completedDays': ["Monday", "Wednesday", "Thursday"],
-    'themeColor': 'red',
-  },
-  {
-    'title': 'Meditate',
-    'currentValue': 0,
-    'targetValue': 20,
-    'unit': 'min',
-    'progress': 0.0,
-    'completedDays': ["Monday", "Thursday"],
-    'themeColor': 'orange',
-  },
-  {
-    'title': 'Swim',
-    'currentValue': 0,
-    'targetValue': 20,
-    'unit': 'km',
-    'progress': 0.3,
-    'completedDays': ["Tuesday", "Wednesday", "Thursday"],
-    'themeColor': 'blue',
-  },
-];
-
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
@@ -88,6 +50,9 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   String? _profilePicUrl;
   bool _isLoadingProfile = true;
 
+  final HabitService _habitService = HabitService();
+  List<Map<String, dynamic>> _habits = [];
+
   @override
   void initState() {
     super.initState();
@@ -98,6 +63,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           })
           ..repeat(reverse: true);
     _loadProfile();
+    _loadHabits();
   }
 
   @override
@@ -126,6 +92,21 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _loadHabits() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final habits = await _habitService.getHabits(uid: uid);
+
+      setState(() {
+        _habits = habits;
+      });
+    } catch (e, st) {
+      debugPrint('Error loading habits: $e');
+      debugPrint('$st');
+      setState(() {});
+    }
+  }
+
   Widget _buildProfileAvatar(double size) {
     final radius = size / 2;
 
@@ -144,7 +125,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       );
     }
 
-    // when no picture is set
+    // when no picture set
     if (_profilePicUrl == null || _profilePicUrl!.isEmpty) {
       return CircleAvatar(
         radius: radius,
@@ -162,11 +143,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final int totalHabits =
-        testHabits.length; // TODO: change testHabits to actual data
-    final int completed = testHabits
+    final habits = _habits;
+    final int totalHabits = habits.length;
+    final int completed = habits
         .where((habit) => habit["progress"] == 1.0)
-        .length; // TODO: change testHabits to actual data
+        .length;
     final double streakProgress = totalHabits == 0
         ? 0.0
         : completed / totalHabits;
@@ -179,9 +160,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       "Friday",
       "Saturday",
     ];
-    final int currentStreak = computeCurrentStreak(
-      testHabits,
-    ); //TODO: change testHabits to actual data
+    final int currentStreak = computeCurrentStreak(habits);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -281,9 +260,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: days
-                                      .map(
-                                        (d) => _mainDayProgress(d, testHabits),
-                                      )
+                                      .map((d) => _mainDayProgress(d, _habits))
                                       .toList(),
                                 ),
 
@@ -475,14 +452,14 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                                   child: ListView.builder(
                                     padding: EdgeInsets.zero,
                                     physics: BouncingScrollPhysics(),
-                                    itemCount: testHabits.length + 1,
+                                    itemCount: _habits.length + 1,
                                     itemBuilder: (context, index) {
-                                      if (index == testHabits.length) {
+                                      if (index == _habits.length) {
                                         return SizedBox(height: 50);
                                       }
-                                      final habit =
-                                          testHabits[index]; //TODO: change testHabits to actual data
+                                      final habit = _habits[index];
                                       return _habit(
+                                        habit['id'],
                                         habit["title"],
                                         habit["targetValue"],
                                         habit["currentValue"],
@@ -873,6 +850,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   }
 
   Container _habit(
+    String habitId,
     String title,
     int targetValue,
     int currentValue,
@@ -994,7 +972,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
           GestureDetector(
             onTap: () {
-              // TODO: Add Habit popup
+              _showIncrementHabitDialog(
+                habitId: habitId,
+                title: title,
+                unit: unit,
+                currentValue: currentValue,
+                targetValue: targetValue,
+              );
             },
             child: Container(
               padding: EdgeInsets.all(3),
@@ -1012,6 +996,90 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
         ],
       ),
     );
+  }
+
+  Future<void> _showIncrementHabitDialog({
+    required String habitId,
+    required String title,
+    required String unit,
+    required int currentValue,
+    required int targetValue,
+  }) async {
+    final controller = TextEditingController(text: '1'); // default increment
+
+    final int? delta = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Log $title'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (targetValue > 0)
+                Text(
+                  'Today: $currentValue / $targetValue $unit',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Amount to add',
+                  suffixText: unit,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final text = controller.text.trim();
+                final value = int.tryParse(text);
+                if (value == null || value <= 0) {
+                  // just keep the dialog open if input is bad
+                  return;
+                }
+                Navigator.of(context).pop(value);
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (delta == null) return; // user cancelled
+
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      await _habitService.addToHabitToday(
+        uid: uid,
+        habitId: habitId,
+        delta: delta,
+      );
+
+      // Reload the habits so UI reflects the new todayValue / progress
+      await _loadHabits();
+    } catch (e, st) {
+      debugPrint('Error incrementing habit: $e');
+      debugPrint('$st');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to update habit. Please try again.'),
+          ),
+        );
+      }
+    }
   }
 
   void _showAddHabitBottomSheet() {
@@ -1250,7 +1318,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         final title = titleController.text.trim();
                         final targetText = targetController.text.trim();
                         final unit = unitController.text.trim().isEmpty
@@ -1258,7 +1326,6 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                             : unitController.text.trim();
 
                         if (title.isEmpty || targetText.isEmpty) {
-                          // You can swap this for a nicer error UI if you want
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Please fill in name and target.'),
@@ -1269,19 +1336,18 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
                         final targetValue = int.tryParse(targetText) ?? 0;
 
-                        setState(() {
-                          testHabits.add({
-                            'title': title,
-                            'currentValue': 0,
-                            'targetValue': targetValue,
-                            'unit': unit,
-                            'progress': 0.0,
-                            'completedDays': <String>[],
-                            'themeColor': selectedThemeColor,
-                          });
-                        });
+                        final uid = FirebaseAuth.instance.currentUser!.uid;
+
+                        await _habitService.addHabit(
+                          uid: uid,
+                          title: title,
+                          targetValue: targetValue,
+                          unit: unit,
+                          themeColor: selectedThemeColor,
+                        );
 
                         Navigator.of(context).pop();
+                        await _loadHabits();
                       },
                       child: const Text(
                         'Add habit',
