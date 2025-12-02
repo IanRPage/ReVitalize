@@ -5,8 +5,6 @@ import 'package:mobile/pages/communities.dart';
 import 'package:mobile/services/profile_service.dart';
 import 'package:mobile/pages/leaderboard.dart';
 
-
-
 final List<Map<String, String>> testNotifications = [
   {
     'title': 'New Challenge Available!',
@@ -73,7 +71,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     if (_isLoadingProfile) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.white.withOpacity(0.2),
+        backgroundColor: Colors.white.withAlpha(51),
         child: const SizedBox(
           width: 18,
           height: 18,
@@ -88,14 +86,14 @@ class _NotificationsPageState extends State<NotificationsPage> {
     if (_profilePicUrl == null || _profilePicUrl!.isEmpty) {
       return CircleAvatar(
         radius: radius,
-        backgroundColor: Colors.white.withOpacity(0.2),
+        backgroundColor: Colors.white.withAlpha(51),
         child: const Icon(Icons.person, color: Colors.white, size: 28),
       );
     }
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: Colors.white.withOpacity(0.2),
+      backgroundColor: Colors.white.withAlpha(51),
       backgroundImage: NetworkImage(_profilePicUrl!),
     );
   }
@@ -152,7 +150,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(25),
+                        ),
                       ),
                       child: Padding(
                         padding: EdgeInsets.symmetric(
@@ -165,94 +165,101 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           switchOutCurve: Curves.easeOut,
                           child: _showEmptyState
                               ? GestureDetector(
-                            key: const ValueKey('emptyState'),
-                            onTap: () {
-                              setState(() {
-                                _showEmptyState = false;
-                              });
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/icons/notificationFiller.png',
-                                  width: 180,
-                                  height: 180,
-                                ),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  'No Notifications Yet!',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                  key: const ValueKey('emptyState'),
+                                  onTap: () {
+                                    setState(() {
+                                      _showEmptyState = false;
+                                    });
+                                  },
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        'assets/icons/notificationFiller.png',
+                                        width: 180,
+                                        height: 180,
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'No Notifications Yet!',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      const Text(
+                                        'You currently have no notifications. We will notify you when something new happens!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'You currently have no notifications. We will notify you when something new happens!',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+                                )
                               : ListView.builder(
-                            key: const ValueKey('notificationsList'),
-                            itemCount: testNotifications.length,
-                            itemBuilder: (context, index) {
-                              final notification = testNotifications[index];
-                              return Container(
-                                margin: const EdgeInsets.symmetric(vertical: 6),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 20,
-                                      backgroundColor: Colors.blue[200],
-                                      child: const Icon(Icons.notifications, color: Colors.white),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                  key: const ValueKey('notificationsList'),
+                                  itemCount: testNotifications.length,
+                                  itemBuilder: (context, index) {
+                                    final notification =
+                                        testNotifications[index];
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        vertical: 6,
+                                      ),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
                                         children: [
-                                          Text(
-                                            notification['title']!,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
+                                          CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.blue[200],
+                                            child: const Icon(
+                                              Icons.notifications,
+                                              color: Colors.white,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  notification['title']!,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  notification['description']!,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                           Text(
-                                            notification['description']!,
+                                            notification['time']!,
                                             style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black87,
+                                              fontSize: 10,
+                                              color: Colors.grey,
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    Text(
-                                      notification['time']!,
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
                         ),
                       ),
                     ),
@@ -268,7 +275,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withAlpha(38),
               blurRadius: 12,
               offset: const Offset(0, -2),
             ),
@@ -279,6 +286,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // DASHBOARD
               IconButton(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -288,6 +296,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 icon: const Icon(Icons.home_rounded, color: Color(0xFFB2B2B2)),
                 iconSize: 32,
               ),
+
+              // LEADERBOARD
               IconButton(
                 onPressed: () {
                   Navigator.of(context).push(
@@ -296,26 +306,46 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                   );
                 },
-                icon: const Icon(Icons.workspace_premium_rounded, color: Color(0xFFF6BD1F)),
+                icon: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: Color(0xFFB2B2B2),
+                ),
                 iconSize: 32,
               ),
+
+              // COMMUNITIES
               IconButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const Communities()),
+                    MaterialPageRoute(
+                      builder: (context) => const Communities(),
+                    ),
                   );
                 },
-                icon: const Icon(Icons.groups_rounded, color: Color(0xFFB2B2B2)),
+                icon: const Icon(
+                  Icons.groups_rounded,
+                  color: Color(0xFFB2B2B2),
+                ),
                 iconSize: 36,
               ),
+
+              // NOTIFICATIONS
               IconButton(
                 onPressed: () {}, // Current page
-                icon: const Icon(Icons.notifications_rounded, color: Color(0xFF26D7AD)),
+                icon: const Icon(
+                  Icons.notifications_rounded,
+                  color: Color(0xFF26D7AD),
+                ),
                 iconSize: 32,
               ),
+
+              // PROFILE
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.person_rounded, color: Color(0xFFB2B2B2)),
+                icon: const Icon(
+                  Icons.person_rounded,
+                  color: Color(0xFFB2B2B2),
+                ),
                 iconSize: 32,
               ),
             ],
@@ -325,5 +355,3 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 }
-
-
