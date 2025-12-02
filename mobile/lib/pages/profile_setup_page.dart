@@ -23,6 +23,12 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
   final TextEditingController heightController = TextEditingController();
   final TextEditingController weightController = TextEditingController();
 
+  final List<String> genderOptions = [
+    'Male',
+    'Female',
+    'Other'
+  ];
+
   Future<void> pickImage(ImageSource src) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: src);
@@ -32,6 +38,43 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
       });
     }
   }
+
+  void _showGenderPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            const Text(
+              "Select Gender",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            ...genderOptions.map((gender) {
+              return ListTile(
+                title: Text(gender),
+                onTap: () {
+                  setState(() {
+                    genderController.text = gender;
+                  });
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+            const SizedBox(height: 12),
+          ],
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +246,19 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           isSmall,
                           keyboardType: TextInputType.number,
                           suffixIconWidget: IconButton(
-                            onPressed: () {}, // TODO: add calendar drop down
+                            onPressed: () async {
+                              final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime.now()
+                              );
+                              if(picked != null){
+                                setState(() {
+                                  dobController.text = "${picked.month}/${picked.day}/${picked.year}";
+                                });
+                              }
+                            }, // TODO: add calendar drop down
                             icon: const ImageIcon(
                               AssetImage('assets/icons/calendar.png'),
                             ),
@@ -220,7 +275,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           isSmall,
                           // readOnly: true,
                           suffixIconWidget: IconButton(
-                            onPressed: () {}, // TODO: add gender dropdown
+                            onPressed: _showGenderPicker, // TODO: add gender dropdown
                             icon: const Icon(Icons.keyboard_arrow_down),
                             color: Colors.grey,
                           ),
