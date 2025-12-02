@@ -15,7 +15,7 @@ class ProfileSetupPage extends StatefulWidget {
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
   final TextEditingController usernameController = TextEditingController();
-  File? profilePic; // TODO figure out how to get profile picture url
+  File? profilePic;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
@@ -138,34 +138,34 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
 
             // Scrollable content
             Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: maxContent,
-                    minHeight: h * 0.95,
-                  ),
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 0),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(25),
-                        topRight: Radius.circular(25),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: maxContent,
+                  minHeight: h * 0.95,
+                ),
+                child: Container(
+                  margin: const EdgeInsets.only(top: 0),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 12,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: pad,
-                      vertical: isSmall ? pad / 2.5 : pad / 1.5,
-                    ),
+                    ],
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: pad,
+                    vertical: isSmall ? pad / 2.5 : pad / 1.5,
+                  ),
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
                     child: Column(
                       children: [
                         const SizedBox(height: 24),
@@ -236,6 +236,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         _buildTextField(
                           'Date of Birth',
                           dobController,
+                          readOnly: true,
                           isSmall,
                           keyboardType: TextInputType.number,
                           suffixIconWidget: IconButton(
@@ -252,7 +253,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                                       "${picked.month}/${picked.day}/${picked.year}";
                                 });
                               }
-                            }, // TODO: add calendar drop down
+                            },
                             icon: const ImageIcon(
                               AssetImage('assets/icons/calendar.png'),
                             ),
@@ -267,10 +268,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                           'Gender',
                           genderController,
                           isSmall,
-                          // readOnly: true,
+                          readOnly: true,
                           suffixIconWidget: IconButton(
-                            onPressed:
-                                _showGenderPicker, // TODO: add gender dropdown
+                            onPressed: _showGenderPicker,
                             icon: const Icon(Icons.keyboard_arrow_down),
                             color: Colors.grey,
                           ),
@@ -348,7 +348,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                                   ),
                                 );
                               }
-                            }, // TODO database create
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF5FD1E2),
                               shape: RoundedRectangleBorder(
