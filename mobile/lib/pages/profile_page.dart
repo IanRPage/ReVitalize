@@ -184,7 +184,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   // Profile header
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: pad / 2, vertical: 16),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: pad / 2,
+                      vertical: 16,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -216,7 +219,12 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         IconButton(
-                          onPressed: _signOut,
+                          onPressed: () {
+                            _signOut();
+                            Navigator.of(
+                              context,
+                            ).pushReplacementNamed('/landing_page');
+                          },
                           icon: const Icon(Icons.settings, color: Colors.white),
                         ),
                       ],
@@ -231,10 +239,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(25),
+                        ),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: pad / 2, vertical: 24),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: pad / 2,
+                          vertical: 24,
+                        ),
                         child: Column(
                           children: [
                             // Labels as transparent, longer rectangles
@@ -246,12 +259,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.check, color: Colors.white, size: 16),
+                                      const Icon(
+                                        Icons.check,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         checkmarkCount.toString(),
                                         style: const TextStyle(
-                                            color: Colors.white, fontWeight: FontWeight.bold),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -261,13 +280,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.local_fire_department,
-                                          color: Colors.white, size: 16),
+                                      const Icon(
+                                        Icons.local_fire_department,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         fireCount.toString(),
                                         style: const TextStyle(
-                                            color: Colors.white, fontWeight: FontWeight.bold),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -280,13 +304,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                       const Text(
                                         'LVL',
                                         style: TextStyle(
-                                            color: Colors.white, fontWeight: FontWeight.bold),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         lvl.toString(),
                                         style: const TextStyle(
-                                            color: Colors.white, fontWeight: FontWeight.bold),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -301,23 +329,23 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Center(
                                 child: _showPlaceholderPost
                                     ? ListView(
-                                  children: [_buildPlaceholderPost()],
-                                )
+                                        children: [_buildPlaceholderPost()],
+                                      )
                                     : GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _showPlaceholderPost = true;
-                                    });
-                                  },
-                                  child: Text(
-                                    "There are no posts to show at the moment.",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
+                                        onTap: () {
+                                          setState(() {
+                                            _showPlaceholderPost = true;
+                                          });
+                                        },
+                                        child: Text(
+                                          "There are no posts to show at the moment.",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[600],
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
                               ),
                             ),
                           ],
@@ -343,4 +371,3 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
-
